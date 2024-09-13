@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals'
 import { createHand} from '../utils/test_adapter'
-import { Hand } from '../../src/model/hand'
+import { Hand } from '../../src/model/Hand'
 import { shuffleBuilder } from '../utils/shuffling'
 
 describe("Legal plays", () => {

@@ -1,6 +1,6 @@
 import { describe, it, test, expect, beforeEach, jest } from '@jest/globals'
 import { createHand} from '../utils/test_adapter'
-import { Hand } from '../../src/model/hand'
+import { Hand } from '../../src/model/Hand'
 import { shorteningShuffler, shuffleBuilder, successiveShufflers } from '../utils/shuffling'
 import { is } from '../utils/predicates'
 
