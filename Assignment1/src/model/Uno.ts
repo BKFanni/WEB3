@@ -71,7 +71,7 @@ export function createGame({
     }
 
     function getPlayerScore(playerNumber: number): number {
-        if (playerNumber < 0 || playerNumber >= gamePlayers.length) {
+        if (playerNumber < 0 || playerNumber >= playerHands.length) {
             throw new Error("Invalid player");
         }
 
