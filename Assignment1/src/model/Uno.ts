@@ -1,4 +1,4 @@
-import { Hand } from './Hand';
+import { Hand, createHand } from './Hand';
 
 export type Props = {
     players: Array<string>,
@@ -11,7 +11,7 @@ export interface Game {
 
     player(playerNumber: number): string,
     score(playerNumber: number): number,
-    winner(): Hand,
+    winner(): Hand | undefined,
     currentHand(): Hand
 }
 
@@ -21,7 +21,7 @@ export function createGame({
 }: Partial<Props>): Game {
     // first safety checks
     if (!players) {
-        players = ['a', 'b']
+        players = ['A', 'B']
     }
     if (!targetScore) {
         targetScore = 500
@@ -35,24 +35,52 @@ export function createGame({
         throw new Error("Target score needs to be at least 1!");
     }
 
-    // Setup
-    let uno: Game = {
+    const uno: Game = {
         playerCount: players.length,
         targetScore: targetScore,
-        player: function (playerNumber: number): string {
-            throw new Error('Function not implemented.');
-        },
-        score: function (playerNumber: number): number {
-            throw new Error('Function not implemented.');
-        },
-        winner: function () {
-            throw new Error('Function not implemented.');
-        },
-        currentHand: function () {
-            throw new Error('Function not implemented.');
-        }
-    }
+        player: getPlayer,
+        score: getPlayerScore,
+        winner: function(): Hand | undefined {
+            let winners = playerHands.filter((h) => {
+                return playerScores[h.playerId] >= this.targetScore
+            })
     
+            if (winners.length < 1) {
+                return undefined
+            }
+            return winners[0]
+        },
+        currentHand: getCurrentTurn
+    }
+
+    // Internals
+    const playerHands: Array<Hand> = []
+    for (let i = 0; i < players.length; i++) {
+        playerHands.push(createHand(players[i], i))
+    }
+    const playerScores: Array<number> = new Array(players.length).fill(0);
+    let currentTurn = 0; // Current hand's turn
+
+    // Interface functions
+    function getPlayer(playerNumber: number): string {
+        if (playerNumber < 0 || playerNumber >= playerHands.length) {
+            throw new Error("Invalid player");
+        }
+
+        return playerHands[playerNumber].playerName
+    }
+
+    function getPlayerScore(playerNumber: number): number {
+        if (playerNumber < 0 || playerNumber >= gamePlayers.length) {
+            throw new Error("Invalid player");
+        }
+
+        return playerScores[playerNumber]
+    }
+
+    function getCurrentTurn(): Hand {
+        return playerHands[currentTurn]
+    }
 
     return uno
 }
