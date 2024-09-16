@@ -1,5 +1,5 @@
-import { Card } from "../../src/model/deck"
-import { Hand } from "../../src/model/hand"
+import { Card } from "../../src/model/Deck"
+import { Hand } from "../../src/model/Hand"
 import { Shuffler, standardShuffler } from "../../src/utils/random_utils"
 import { CardPredicate, CardSpec, is, not } from "./predicates"
 import { HandProps, createHand, createInitialDeck } from "./test_adapter"
