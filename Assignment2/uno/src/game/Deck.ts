@@ -1,19 +1,19 @@
-import { Card } from "./Card"
+import { Card, CardColor } from "./Card"
 import { shuffleArray } from "./Utils"
 
 export type Deck = {
     placedCards: Card[];
     availableCards: Card[];
-    currentColor?: "Red" | "Green" | "Blue" | "Yellow";
+    currentColor?: CardColor;
 
-    pickCard(): Card;
+    pickCard(): Card | undefined;
     placeCard(card: Card): void;
 }
 
 export function createDeck(): Deck {
     let availableCards = shuffleArray(createCards())
     let placedCards: Card[] = []
-    let currentColor: "Red" | "Green" | "Blue" | "Yellow"
+    let currentColor: CardColor
 
     const pickCard = () => availableCards.pop()
 
@@ -48,7 +48,7 @@ const createCards = (): Card[] => {
     // Blue number cards
     for (let i = 0; i < 19; i++) {
         cards.push({
-            color: "Blue",
+            color: CardColor.Blue,
             type: "Number",
             value: i % 10
         })
@@ -56,7 +56,7 @@ const createCards = (): Card[] => {
     // Green number cards
     for (let i = 0; i < 19; i++) {
         cards.push({
-            color: "Green",
+            color: CardColor.Green,
             type: "Number",
             value: i % 10
         })
@@ -64,7 +64,7 @@ const createCards = (): Card[] => {
     // Red number cards
     for (let i = 0; i < 19; i++) {
         cards.push({
-            color: "Red",
+            color: CardColor.Red,
             type: "Number",
             value: i % 10
         })
@@ -72,7 +72,7 @@ const createCards = (): Card[] => {
     // Yellow number cards
     for (let i = 0; i < 19; i++) {
         cards.push({
-            color: "Yellow",
+            color: CardColor.Yellow,
             type: "Number",
             value: i % 10
         })
@@ -81,16 +81,16 @@ const createCards = (): Card[] => {
     // Wild / Draw 4 cards
     for (let i = 0; i < 4; i++) {
         cards.push({
-            color: "Red", // Random default color
+            color: CardColor.Red, // Random default color
             type: "Wild",
-            changeColor(col: "Red" | "Green" | "Blue" | "Yellow"): void {
+            changeColor(col: CardColor): void {
                 this.color = col
             }
         })
         cards.push({
-            color: "Red",
+            color: CardColor.Red,
             type: "Wild Draw Four",
-            changeColor(col: "Red" | "Green" | "Blue" | "Yellow"): void {
+            changeColor(col: CardColor): void {
                 this.color = col
             }
         })
@@ -98,20 +98,20 @@ const createCards = (): Card[] => {
 
     // Skip / Reverse / Draw 2 cards
     for (let i = 0; i < 2; i++) {
-        cards.push({color: "Blue", type: "Skip"})
-        cards.push({color: "Red", type: "Skip"})
-        cards.push({color: "Green", type: "Skip"})
-        cards.push({color: "Yellow", type: "Skip"})
+        cards.push({color: CardColor.Blue, type: "Skip"})
+        cards.push({color: CardColor.Red, type: "Skip"})
+        cards.push({color: CardColor.Green, type: "Skip"})
+        cards.push({color: CardColor.Yellow, type: "Skip"})
 
-        cards.push({color: "Blue", type: "Reverse"})
-        cards.push({color: "Red", type: "Reverse"})
-        cards.push({color: "Green", type: "Reverse"})
-        cards.push({color: "Yellow", type: "Reverse"})
+        cards.push({color: CardColor.Blue, type: "Reverse"})
+        cards.push({color: CardColor.Red, type: "Reverse"})
+        cards.push({color: CardColor.Green, type: "Reverse"})
+        cards.push({color: CardColor.Yellow, type: "Reverse"})
 
-        cards.push({color: "Blue", type: "Draw Two"})
-        cards.push({color: "Red", type: "Draw Two"})
-        cards.push({color: "Green", type: "Draw Two"})
-        cards.push({color: "Yellow", type: "Draw Two"})
+        cards.push({color: CardColor.Blue, type: "Draw Two"})
+        cards.push({color: CardColor.Red, type: "Draw Two"})
+        cards.push({color: CardColor.Green, type: "Draw Two"})
+        cards.push({color: CardColor.Yellow, type: "Draw Two"})
     }
 
     return cards
