@@ -7,7 +7,7 @@ export enum CardColor {
 
 export type Card = {
     color: CardColor;       
-    type: "Number" | "Skip" | "Reverse" | "Draw Two" | "Wild" | "Wild Draw Four";     
-    value?: number;
+    readonly type: "Number" | "Skip" | "Reverse" | "Draw Two" | "Wild" | "Wild Draw Four";     
+    readonly value?: number;
     changeColor?(col: CardColor);
 }
