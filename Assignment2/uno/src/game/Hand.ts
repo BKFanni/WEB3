@@ -71,7 +71,9 @@ export function createHand(
     }
 
     const changeWildcardColor = (cardNumber: number, color: CardColor) => {
-        if (cardNumber < 1 || cardNumber > cards.length) {
+        if (cardNumber < 1 || cardNumber > cards.length ||
+            cards[cardNumber].type !== "Wild" || cards[cardNumber].type !== "Wild Draw Four"
+        ) {
             throw new Error("Invalid card!");
         }
 

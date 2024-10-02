@@ -4,13 +4,16 @@ import { Hand, PlayerType, createHand } from "./Hand";
 
 export type Uno = {
     readonly targetScore: number;
+    readonly playerCount: number;
+    readonly currentPlayer: number;
+    readonly currentDeck: Deck;
 
     playerName(playerNumber: number): string;
     cardAmount(playerNumber: number): number;
     score(playerNumber: number): number;
     winner(): Hand | undefined;
-    currentPlayer(): number;
-    currentDeck(): Deck;
+    nextPlayer(): number;
+    prevPlayer(): number;
     newRound(): Deck;
 
     // Game interactions
@@ -55,7 +58,7 @@ export function createGame(
     // Variable definitions
     let playerArr: Hand[] = []
     let scores: number[] = []
-    let current: number = 0
+    let currentPlayer: number = 0
     // currentHand + movementDirection = next hand
     let movementDirection: number = 1
     let currentDeck: Deck = createDeck()
@@ -99,12 +102,22 @@ export function createGame(
         return winners[0]
     }
 
-    const currentPlayer = (): number => {
-        return current
+    const nextPlayer = (): number => {
+        if (movementDirection > 0) {
+            return (currentPlayer+movementDirection) % playerArr.length
+        } else if (movementDirection < 0) {
+            return (currentPlayer+movementDirection) % playerArr.length + playerArr.length
+        }
+        return currentPlayer
     }
 
-    const usedDeck = (): Deck => {
-        return currentDeck
+    const prevPlayer = (): number => {
+        if (movementDirection > 0) {
+            return (currentPlayer-movementDirection) % playerArr.length + playerArr.length
+        } else if (movementDirection < 0) {
+            return (currentPlayer-movementDirection) % playerArr.length
+        }
+        return currentPlayer
     }
 
     const newRound = (): Deck => {
@@ -143,16 +156,57 @@ export function createGame(
         playerArr[playerNumber].callUno()
     }
 
+    const playerPickCard = (playerNumber: number): [Deck, Hand] => {
+        if (playerNumber <= 0 || players.size <= playerNumber) {
+            throw new Error("Invalid player!");
+        }
+        if (current !== playerNumber) {
+            throw new Error("Current player does not have the turn!");
+        }
+
+        playerArr[playerNumber].pickCard(currentDeck)
+        return [currentDeck, playerArr[playerNumber]]
+    }
+
+    const playerMove = (cardNumber: number, wildcardColor?: CardColor): Deck => {
+        if (wildcardColor !== undefined) {
+            playerArr[currentPlayer].changeWildcardColor(cardNumber, wildcardColor)
+        }
+
+        let c = playerArr[currentPlayer].playCard(cardNumber, currentDeck)
+        if (c.type === "Reverse") {
+            movementDirection *= -1
+        }
+
+        let movement = movementDirection
+        if (c.type === "Skip") {
+            movement *= 2
+        }
+
+        if (movement > 0) {
+            currentPlayer = (currentPlayer+movement) % playerArr.length
+        } else if (movement < 0) {
+            currentPlayer = (currentPlayer+movement) % playerArr.length + playerArr.length
+        }
+
+        return currentDeck
+    }
+
     return {
         targetScore,
+        playerCount: players.size,
+        currentPlayer,
+        currentDeck,
         playerName,
         score,
         cardAmount,
         winner,
-        currentPlayer,
+        nextPlayer,
+        prevPlayer,
         newRound,
-        currentDeck: usedDeck,
         accuseUno,
-        callUno
+        callUno,
+        playerPickCard,
+        playerMove
     }
 }
