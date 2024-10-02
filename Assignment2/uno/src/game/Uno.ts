@@ -1,3 +1,4 @@
+import { makeAMove } from "./Bot";
 import { CardColor } from "./Card";
 import { Deck, createDeck } from "./Deck";
 import { Hand, PlayerType, createHand } from "./Hand";
@@ -160,7 +161,7 @@ export function createGame(
         if (playerNumber <= 0 || players.size <= playerNumber) {
             throw new Error("Invalid player!");
         }
-        if (current !== playerNumber) {
+        if (currentPlayer !== playerNumber) {
             throw new Error("Current player does not have the turn!");
         }
 
@@ -192,6 +193,14 @@ export function createGame(
         return currentDeck
     }
 
+    const botMove = (): Deck => {
+        if (playerArr[currentPlayer].playerType === PlayerType.Player) {
+            throw new Error("It is human player turn!");
+        }
+        makeAMove(playerArr[currentPlayer], this)
+        return currentDeck
+    }
+
     return {
         targetScore,
         playerCount: players.size,
@@ -207,6 +216,7 @@ export function createGame(
         accuseUno,
         callUno,
         playerPickCard,
-        playerMove
+        playerMove,
+        botMove
     }
 }
