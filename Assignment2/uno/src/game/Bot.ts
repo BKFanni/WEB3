@@ -35,7 +35,7 @@ export function makeAMove(bot: Hand, uno: Uno) {
                 return true
             }
 
-            return c.value !== undefined // includes only number cards
+            return false
         })
     }
 
