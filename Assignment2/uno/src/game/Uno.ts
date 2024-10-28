@@ -1,8 +1,11 @@
 import { makeAMove } from "./Bot";
-import { CardColor } from "./Card";
+import { Card, CardColor, calculatePoints } from "./Card";
 import { Deck, createDeck } from "./Deck";
 import { Hand, PlayerType, createHand } from "./Hand";
 
+/**
+ * The game type that the frontend is calling to advance game
+ */
 export type Uno = {
     readonly targetScore: number;
     readonly playerCount: number;
@@ -13,7 +16,6 @@ export type Uno = {
     cardAmount(playerNumber: number): number;
     score(playerNumber: number): number;
     winner(): Hand | undefined;
-    nextPlayer(): number;
     prevPlayer(): number;
     newRound(): Deck;
 
@@ -103,15 +105,6 @@ export function createGame(
         return winners[0]
     }
 
-    const nextPlayer = (): number => {
-        if (movementDirection > 0) {
-            return (currentPlayer+movementDirection) % playerArr.length
-        } else if (movementDirection < 0) {
-            return (currentPlayer+movementDirection) % playerArr.length + playerArr.length
-        }
-        return currentPlayer
-    }
-
     const prevPlayer = (): number => {
         if (movementDirection > 0) {
             return (currentPlayer-movementDirection) % playerArr.length + playerArr.length
@@ -122,7 +115,7 @@ export function createGame(
     }
 
     const newRound = (): Deck => {
-        current = 0
+        currentPlayer = 0
         movementDirection = 1
         currentDeck = createDeck()
         playerArr = []
@@ -175,20 +168,8 @@ export function createGame(
         }
 
         let c = playerArr[currentPlayer].playCard(cardNumber, currentDeck)
-        if (c.type === "Reverse") {
-            movementDirection *= -1
-        }
-
-        let movement = movementDirection
-        if (c.type === "Skip") {
-            movement *= 2
-        }
-
-        if (movement > 0) {
-            currentPlayer = (currentPlayer+movement) % playerArr.length
-        } else if (movement < 0) {
-            currentPlayer = (currentPlayer+movement) % playerArr.length + playerArr.length
-        }
+        awardIfWonRound()
+        incrementCurrentPlayer(c)
 
         return currentDeck
     }
@@ -197,8 +178,51 @@ export function createGame(
         if (playerArr[currentPlayer].playerType === PlayerType.Player) {
             throw new Error("It is human player turn!");
         }
-        makeAMove(playerArr[currentPlayer], this)
+        let placed = makeAMove(playerArr[currentPlayer], this)
+        awardIfWonRound()
+        incrementCurrentPlayer(placed)
+
         return currentDeck
+    }
+
+    /**
+     * Internal method to award player if they have 0 cards in hand and have called uno
+     */
+    const awardIfWonRound = (): void => {
+        if (playerArr[currentPlayer].cards.length === 0 && playerArr[currentPlayer].calledUno) {
+            // Player won! Adding points from remaining cards
+            playerArr.forEach(p => {
+                scores[currentPlayer] += calculatePoints(p.cards)
+            });
+        } else if (playerArr[currentPlayer].cards.length === 0) {
+            // Could've won, but forgot to call uno. Adding 4 cards
+            for (let i = 0; i < 4; i++) {
+                playerPickCard(currentPlayer)
+            }
+        }
+    }
+
+    /**
+     * Internal function to change/increment player movement
+     * @param card Card to base movement off of
+     */
+    const incrementCurrentPlayer = (card: Card): void => {
+        let movement = movementDirection
+        if (card !== undefined) {
+            if (card.type === "Reverse") {
+                movementDirection *= -1
+                movement = movementDirection
+            }
+            if (card.type === "Skip") {
+                movement *= 2
+            }
+        }
+
+        if (movement > 0) {
+            currentPlayer = (currentPlayer+movement) % playerArr.length
+        } else if (movement < 0) {
+            currentPlayer = (currentPlayer+movement) % playerArr.length + playerArr.length
+        }
     }
 
     return {
@@ -210,7 +234,6 @@ export function createGame(
         score,
         cardAmount,
         winner,
-        nextPlayer,
         prevPlayer,
         newRound,
         accuseUno,

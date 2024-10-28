@@ -1,6 +1,10 @@
 import { Card, CardColor } from "./Card"
 import { shuffleArray } from "./Utils"
 
+/**
+ * Table with cards, frontend should use this only to read info
+ * Backend (Uno.ts, Hand.ts, etc) use it to both read info and call methods
+ */
 export type Deck = {
     placedCards: Card[];
     availableCards: Card[];
@@ -15,7 +19,15 @@ export function createDeck(): Deck {
     let placedCards: Card[] = []
     let currentColor: CardColor
 
-    const pickCard = () => availableCards.pop()
+    const pickCard = () => {
+        let picked = availableCards.pop()
+        if (picked === undefined) {
+            // reshuffling placed cards and putting them as available
+            availableCards.push(...shuffleArray(placedCards))
+            currentColor = undefined
+            return availableCards.pop()
+        }
+    }
 
     const placeCard = (card: Card) => {
         // Checking if there's no set color
