@@ -1,14 +1,14 @@
-import { Card } from "./Card";
+import { Card, CardColor } from "./Card";
+import { Deck } from "./Deck";
 import { Hand, PlayerType } from "./Hand";
 import { Uno } from "./Uno";
 
 /**
- * Calculate and make a move by a bot player
+ * Calculate and make a move by a bot player. Returns placed card
  * @param bot The bot
  * @param uno Game to affect
  */
-export function makeAMove(bot: Hand, uno: Uno) {
-    let nextPlayer = uno.nextPlayer()
+export function makeAMove(bot: Hand, uno: Uno): Card {
     let prevPlayer = uno.prevPlayer()
 
     // Accusing previous player to check if they made a mistake
@@ -17,9 +17,47 @@ export function makeAMove(bot: Hand, uno: Uno) {
     }
 
     let deck = uno.currentDeck
-    let options: Card[] = []
+    let options: Card[] = cardOptions(bot, deck)
+    if (options.length < 1) {
+        // no available cards, checking if bot will pick one
+        bot.pickCard(deck)
+        options = cardOptions(bot, deck)
+    }
+    if (options.length < 1) {
+        // still no available cards, skipping
+        return undefined
+    }
+
+    let chosen: number = Math.floor(Math.random() * options.length);
+    // Setting wild card colour if chosen
+    if (bot.cards[chosen].type === "Wild" || bot.cards[chosen].type === "Wild Draw Four") {
+        bot.changeWildcardColor(chosen, Math.floor(Math.random() * 4))
+        if (bot.playerType === PlayerType.HardBot) {
+            // Hard bot doesnt set the same color
+            while (bot.cards[chosen].color === deck.currentColor) {
+                bot.changeWildcardColor(chosen, Math.floor(Math.random() * 4))
+            }
+        }
+    }
+
+    let chosenCard = bot.cards[chosen]
+    bot.playCard(chosen, deck)
+    if (bot.cards.length <= 1 && callUno(bot.playerType)) {
+        uno.callUno(uno.currentPlayer)
+    }
+    return chosenCard
+}
+
+/**
+ * Goes through bot's hand and compares what cards are available to use
+ * @param bot The bot
+ * @param deck The deck to compare cards against
+ */
+const cardOptions = (bot: Hand, deck: Deck): Card[] => {
+    let options: Card[]
+
+    // checking deck is empty
     if (deck.currentColor === undefined || deck.placedCards.length === 0) {
-        // deck is empty
         if (bot.playerType === PlayerType.HardBot) {
             // Hard bot wont place a special card as first card unless no other choice
             options = bot.cards.filter((c: Card) => {
@@ -30,28 +68,22 @@ export function makeAMove(bot: Hand, uno: Uno) {
         if (options.length === 0) {
             options = bot.cards
         }
-    } else {
-        // Deck is not empty
-        options = bot.cards.filter((c: Card) => {
-            if (c.type === "Wild" || c.type === "Wild Draw Four" || // wildcards
-                c.color === deck.currentColor || // matches color
-                c.value === deck.placedCards.lastItem.value // matches number
-            ) {
-                return true
-            }
-
-            return false
-        })
+        return options
     }
 
-    let chosen: number = Math.floor(Math.random() * options.length);
-    bot.playCard(chosen, deck)
-    if (bot.cards.length <= 1 && deck.availableCards.length > 0) {
-        bot.pickCard(deck)
-    }
-    if (bot.cards.length <= 1 && callUno(bot.playerType)) {
-        uno.callUno(uno.currentPlayer)
-    }
+    // Deck is not empty
+    options = bot.cards.filter((c: Card) => {
+        if (c.type === "Wild" || c.type === "Wild Draw Four" || // wildcards
+            c.color === deck.currentColor || // matches color
+            c.value === deck.placedCards.lastItem.value // matches number
+        ) {
+            return true
+        }
+
+        return false
+    })
+
+    return options
 }
 
 /**
