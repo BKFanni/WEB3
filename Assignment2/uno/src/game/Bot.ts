@@ -28,7 +28,7 @@ export function makeAMove(bot: Hand, uno: Uno): Card {
         return undefined
     }
 
-    let chosen: number = Math.floor(Math.random() * options.length);
+    let chosen: number = Math.floor(Math.random() * options.length);  //////////////////////FIX
     // Setting wild card colour if chosen
     if (bot.cards[chosen].type === "Wild" || bot.cards[chosen].type === "Wild Draw Four") {
         bot.changeWildcardColor(chosen, Math.floor(Math.random() * 4))

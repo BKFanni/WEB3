@@ -1,5 +1,5 @@
 import { makeAMove } from "./Bot";
-import { Card, CardColor } from "./Card";
+import { Card, CardColor, calculatePoints } from "./Card";
 import { Deck, createDeck } from "./Deck";
 import { Hand, PlayerType, createHand } from "./Hand";
 
@@ -168,7 +168,8 @@ export function createGame(
         }
 
         let c = playerArr[currentPlayer].playCard(cardNumber, currentDeck)
-        changeMovement(c)
+        awardIfWonRound()
+        incrementCurrentPlayer(c)
 
         return currentDeck
     }
@@ -178,16 +179,34 @@ export function createGame(
             throw new Error("It is human player turn!");
         }
         let placed = makeAMove(playerArr[currentPlayer], this)
-        changeMovement(placed)
+        awardIfWonRound()
+        incrementCurrentPlayer(placed)
 
         return currentDeck
+    }
+
+    /**
+     * Internal method to award player if they have 0 cards in hand and have called uno
+     */
+    const awardIfWonRound = (): void => {
+        if (playerArr[currentPlayer].cards.length === 0 && playerArr[currentPlayer].calledUno) {
+            // Player won! Adding points from remaining cards
+            playerArr.forEach(p => {
+                scores[currentPlayer] += calculatePoints(p.cards)
+            });
+        } else if (playerArr[currentPlayer].cards.length === 0) {
+            // Could've won, but forgot to call uno. Adding 4 cards
+            for (let i = 0; i < 4; i++) {
+                playerPickCard(currentPlayer)
+            }
+        }
     }
 
     /**
      * Internal function to change/increment player movement
      * @param card Card to base movement off of
      */
-    const changeMovement = (card: Card): void => {
+    const incrementCurrentPlayer = (card: Card): void => {
         let movement = movementDirection
         if (card !== undefined) {
             if (card.type === "Reverse") {

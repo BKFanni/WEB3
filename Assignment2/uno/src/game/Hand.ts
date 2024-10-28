@@ -53,7 +53,7 @@ export function createHand(
     }
 
     const playCard = (cardNumber: number, gameDeck: Deck): Card => {
-        if (cardNumber < 1 || cardNumber > cards.length) {
+        if (cardNumber < 0 || cardNumber >= cards.length) {
             throw new Error("Invalid card!");
         }
 
