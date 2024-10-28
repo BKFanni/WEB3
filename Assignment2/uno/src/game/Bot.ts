@@ -2,6 +2,11 @@ import { Card } from "./Card";
 import { Hand, PlayerType } from "./Hand";
 import { Uno } from "./Uno";
 
+/**
+ * Calculate and make a move by a bot player
+ * @param bot The bot
+ * @param uno Game to affect
+ */
 export function makeAMove(bot: Hand, uno: Uno) {
     let nextPlayer = uno.nextPlayer()
     let prevPlayer = uno.prevPlayer()
@@ -71,6 +76,9 @@ const accusePlayer = (botType: PlayerType, accusedCardAmount: number): boolean =
     return false
 }
 
+/**
+ * Whether to call Uno based on bot's difficulty
+ */
 const callUno = (botType: PlayerType): boolean => {
     let rand = Math.random()
     if (botType === PlayerType.EasyBot || botType === PlayerType.Player) {

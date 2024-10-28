@@ -1,6 +1,10 @@
 import { Card, CardColor } from "./Card"
 import { shuffleArray } from "./Utils"
 
+/**
+ * Table with cards, frontend should use this only to read info
+ * Backend (Uno.ts, Hand.ts, etc) use it to both read info and call methods
+ */
 export type Deck = {
     placedCards: Card[];
     availableCards: Card[];

@@ -3,6 +3,9 @@ import { CardColor } from "./Card";
 import { Deck, createDeck } from "./Deck";
 import { Hand, PlayerType, createHand } from "./Hand";
 
+/**
+ * The game type that the frontend is calling to advance game
+ */
 export type Uno = {
     readonly targetScore: number;
     readonly playerCount: number;
@@ -122,7 +125,7 @@ export function createGame(
     }
 
     const newRound = (): Deck => {
-        current = 0
+        currentPlayer = 0
         movementDirection = 1
         currentDeck = createDeck()
         playerArr = []

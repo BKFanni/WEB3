@@ -8,7 +8,11 @@ export enum PlayerType {
     HardBot
 }
 
-// Hand aka Player for a SINGLE Uno round
+/**
+ * Hand aka Player for a SINGLE Uno round
+ * The frontend should only use this type to read information
+ * The backend (Uno.ts, etc) use it to both read info and call methods
+ */
 export type Hand = {
     readonly name: string;
     cards: Card[];
