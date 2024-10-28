@@ -1,22 +1,31 @@
-export enum Color {
-    Red = 'Red',
-    Green = 'Green',
-    Blue = 'Blue',
-    Yellow = 'Yellow',
-    Wild = 'Wild'  
-  }
-  
-  export enum CardType {
-    Number = 'Number',
-    Skip = 'Skip',
-    Reverse = 'Reverse',
-    DrawTwo = 'Draw Two',
-    Wild = 'Wild',
-    WildDrawFour = 'Wild Draw Four'
-  }
-  
-  export interface Card {
-    color: Color;       
-    type: CardType;     
-    value?: number;     
-  }
+export enum CardColor {
+    Red,
+    Green,
+    Blue,
+    Yellow
+}
+
+export type Card = {
+    color: CardColor;       
+    readonly type: "Number" | "Skip" | "Reverse" | "Draw Two" | "Wild" | "Wild Draw Four";     
+    readonly value?: number;
+    changeColor?(col: CardColor): void;
+}
+
+/**
+ * Calculates the amount of points gained from the given cards
+ * @param cards Cards to use
+ */
+export function calculatePoints(cards: Card[]): number {
+    let total = 0
+    cards.forEach(c => {
+        if (c.type === "Number") { total += c.value }
+        if (c.type === "Draw Two") { total += 20 }
+        if (c.type === "Reverse") { total += 20 }
+        if (c.type === "Skip") { total += 20 }
+        if (c.type === "Wild") { total += 50 }
+        if (c.type === "Wild Draw Four") { total += 50 }
+    });
+
+    return total
+}

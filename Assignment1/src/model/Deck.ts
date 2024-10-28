@@ -1,60 +1,130 @@
-import { Card, Color, CardType } from './Card';
+import { Card, CardColor } from "./Card"
+import { shuffleArray } from "./Utils"
 
-export interface Deck {
-  cards: Card[];
+/**
+ * Table with cards, frontend should use this only to read info
+ * Backend (Uno.ts, Hand.ts, etc) use it to both read info and call methods
+ */
+export type Deck = {
+    placedCards: Card[];
+    availableCards: Card[];
+    currentColor?: CardColor;
+
+    pickCard(): Card | undefined;
+    placeCard(card: Card): void;
 }
 
-export const createDeck = (): Deck => {
-  const deck: Deck = { cards: [] };
-  resetDeck(deck);
-  shuffleDeck(deck);
-  return deck;
-};
+export function createDeck(): Deck {
+    let availableCards = shuffleArray(createCards())
+    let placedCards: Card[] = []
+    let currentColor: CardColor
 
-export const shuffleDeck = (deck: Deck): void => {
-  for (let i = deck.cards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck.cards[i], deck.cards[j]] = [deck.cards[j], deck.cards[i]];
-  }
-};
-
-export const drawCard = (deck: Deck): Card | undefined => {
-  return deck.cards.pop();
-};
-
-
-export const dealCards = (deck: Deck, numCards: number): Card[] => {
-  const dealtCards: Card[] = [];
-  for (let i = 0; i < numCards; i++) {
-    const card = drawCard(deck);
-    if (card) dealtCards.push(card);
-  }
-  return dealtCards;
-};
-
-
-export const resetDeck = (deck: Deck): void => {
-  deck.cards = [];
-
-  const colors = [Color.Red, Color.Green, Color.Blue, Color.Yellow];
-
-  colors.forEach((color) => {
-    deck.cards.push({ color, type: CardType.Number, value: 0 });
-
-    for (let i = 1; i <= 9; i++) {
-      deck.cards.push({ color, type: CardType.Number, value: i });
-      deck.cards.push({ color, type: CardType.Number, value: i });
+    const pickCard = () => {
+        let picked = availableCards.pop()
+        if (picked === undefined) {
+            // reshuffling placed cards and putting them as available
+            availableCards.push(...shuffleArray(placedCards))
+            currentColor = undefined
+            return availableCards.pop()
+        }
     }
 
+    const placeCard = (card: Card) => {
+        // Checking if there's no set color
+        if (currentColor === undefined) {
+            placedCards.push(card)
+            currentColor = card.color
+            return
+        }
+
+        // Checking if card's color matches current color
+        if (currentColor !== card.color && card.type !== "Wild") {
+            throw new Error("Card's color doesn't match!");
+        }
+
+        placedCards.push(card)
+        currentColor = card.color
+    }
+
+    return {
+        placedCards,
+        availableCards,
+        currentColor,
+        pickCard,
+        placeCard
+    }
+}
+
+const createCards = (): Card[] => {
+    let cards: Card[] = []
+    // Blue number cards
+    for (let i = 0; i < 19; i++) {
+        cards.push({
+            color: CardColor.Blue,
+            type: "Number",
+            value: i % 10
+        })
+    }
+    // Green number cards
+    for (let i = 0; i < 19; i++) {
+        cards.push({
+            color: CardColor.Green,
+            type: "Number",
+            value: i % 10
+        })
+    }
+    // Red number cards
+    for (let i = 0; i < 19; i++) {
+        cards.push({
+            color: CardColor.Red,
+            type: "Number",
+            value: i % 10
+        })
+    }
+    // Yellow number cards
+    for (let i = 0; i < 19; i++) {
+        cards.push({
+            color: CardColor.Yellow,
+            type: "Number",
+            value: i % 10
+        })
+    }
+
+    // Wild / Draw 4 cards
+    for (let i = 0; i < 4; i++) {
+        cards.push({
+            color: CardColor.Red, // Random default color
+            type: "Wild",
+            changeColor(col: CardColor): void {
+                this.color = col
+            }
+        })
+        cards.push({
+            color: CardColor.Red,
+            type: "Wild Draw Four",
+            changeColor(col: CardColor): void {
+                this.color = col
+            }
+        })
+    }
+
+    // Skip / Reverse / Draw 2 cards
     for (let i = 0; i < 2; i++) {
-      deck.cards.push({ color, type: CardType.Skip });
-      deck.cards.push({ color, type: CardType.Reverse });
-      deck.cards.push({ color, type: CardType.DrawTwo });
-    }
-  });
+        cards.push({color: CardColor.Blue, type: "Skip"})
+        cards.push({color: CardColor.Red, type: "Skip"})
+        cards.push({color: CardColor.Green, type: "Skip"})
+        cards.push({color: CardColor.Yellow, type: "Skip"})
 
-  for (let i = 0; i < 4; i++) {
-    deck.cards.push({ color: Color.Wild, type: CardType.Wild });
-    deck.cards.push({ color: Color.Wild, type: CardType.WildDrawFour });
-  }
-};
+        cards.push({color: CardColor.Blue, type: "Reverse"})
+        cards.push({color: CardColor.Red, type: "Reverse"})
+        cards.push({color: CardColor.Green, type: "Reverse"})
+        cards.push({color: CardColor.Yellow, type: "Reverse"})
+
+        cards.push({color: CardColor.Blue, type: "Draw Two"})
+        cards.push({color: CardColor.Red, type: "Draw Two"})
+        cards.push({color: CardColor.Green, type: "Draw Two"})
+        cards.push({color: CardColor.Yellow, type: "Draw Two"})
+    }
+
+    return cards
+}
