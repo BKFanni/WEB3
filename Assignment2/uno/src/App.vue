@@ -1,26 +1,25 @@
+<!-- App.vue -->
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <HandPlay /> <!-- Import and use your game component -->
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { useStore } from 'vuex';
+import { onMounted } from 'vue';
+import HandPlay from './components/HandPlay.vue';
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
-</script>
+  components: { HandPlay },
+  setup() {
+    const store = useStore();
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+    onMounted(() => {
+      store.dispatch('initializeGame'); // Initialize game state when app loads
+    });
+
+    return {};
+  },
+};
+</script>

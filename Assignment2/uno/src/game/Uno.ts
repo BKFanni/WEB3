@@ -115,7 +115,7 @@ export function createGame(
     }
 
     const newRound = (): Deck => {
-        currentPlayer = 0
+        const current = 0
         movementDirection = 1
         currentDeck = createDeck()
         playerArr = []
