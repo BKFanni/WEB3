@@ -1,5 +1,5 @@
 import { createStore } from "vuex";
-import { createGame, PlayerType } from "../game/Uno.ts";
+import { createGame, PlayerType } from "../game/Uno";
 
 export default createStore({
   state: {
@@ -14,8 +14,10 @@ export default createStore({
     // Initializes the game with provided player information
     initializeGame(state, { players, targetScore, startingCards }) {
       const playerMap = new Map(
-        players.map((player) => [player.name, player.type])
+        players.map((player) => [player.name, player.type]) // Just use player.type without assertions
       );
+
+      // Now `playerMap` should match `createGame` requirements
       state.unoGame = createGame(playerMap, targetScore, startingCards);
       state.players = Array.from(playerMap.keys());
       state.discardPile = [];
@@ -25,8 +27,10 @@ export default createStore({
 
     // Updates the deck after a player or bot move
     updateDeckState(state, updatedDeck) {
-      state.unoGame.currentDeck = updatedDeck;
-      state.discardPile = updatedDeck.placedCards;
+      if (state.unoGame) {
+        state.unoGame.currentDeck = updatedDeck; // Ensure `currentDeck` exists in `Uno` type
+        state.discardPile = updatedDeck.placedCards;
+      }
     },
 
     // Advances to the next player based on the game state

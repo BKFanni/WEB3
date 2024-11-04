@@ -40,11 +40,11 @@ export function createHand(
     }
     
     const name = playerName
-    let cards: Card[] = []
+    const cards: Card[] = []
     let calledUno: boolean = false
 
     for (let i = 0; i < cardAmount; i++) {
-        let c = deck.pickCard()
+        const c = deck.pickCard()
         if (c === undefined) {
             throw new Error("Deck ran out of cards!");
         }
@@ -57,7 +57,7 @@ export function createHand(
             throw new Error("Invalid card!");
         }
 
-        let usedCard = cards[cardNumber]
+        const usedCard = cards[cardNumber]
         gameDeck.placeCard(usedCard)
         // Only remove card from hand if placing is successful
         return cards.splice(cardNumber, 1)[0]
@@ -65,7 +65,7 @@ export function createHand(
 
     const pickCard = (deck: Deck): Card | undefined => {
         calledUno = false
-        let c = deck.pickCard()
+        const c = deck.pickCard()
         if (c === undefined) {
             return c
         }
@@ -75,14 +75,22 @@ export function createHand(
     }
 
     const changeWildcardColor = (cardNumber: number, color: CardColor) => {
-        if (cardNumber < 1 || cardNumber > cards.length ||
-            cards[cardNumber].type !== "Wild" || cards[cardNumber].type !== "Wild Draw Four"
+        // Check if the cardNumber is out of bounds
+        if (cardNumber < 0 || cardNumber >= cards.length ||
+            (cards[cardNumber].type !== "Wild" && cards[cardNumber].type !== "Wild Draw Four")
         ) {
             throw new Error("Invalid card!");
         }
-
-        cards[cardNumber].changeColor(color)
-    }
+    
+        // Safely change the color if the method exists
+        const card = cards[cardNumber];
+        if (card && typeof card.changeColor === "function") {
+            card.changeColor(color);
+        } else {
+            throw new Error("Card method 'changeColor' is not defined.");
+        }
+    };
+    
 
     const callUno = () => {
         if (cards.length > 1) {
