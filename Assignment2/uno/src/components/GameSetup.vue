@@ -1,29 +1,34 @@
 <template>
-    <div class="game-setup">
-      <h1>Uno Game Setup</h1>
-      <label for="bots">Number of bots:</label>
-      <select v-model="bots">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-      </select>
-      <button @click="startGame">Start Game</button>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        bots: 1
-      };
-    },
-    methods: {
-      startGame() {
-        this.$store.dispatch('startGame', { bots: this.bots });
-        this.$router.push('/play');
+  <div>
+    <h1>Uno Game Setup</h1>
+    <label>
+      Number of Bots:
+      <input type="number" v-model="numBots" min="1" max="3" />
+    </label>
+    <button @click="startGame">Start Game</button>
+  </div>
+</template>
+
+<script>
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { ref } from 'vue'; 
+export default {
+  setup() {
+    const router = useRouter();
+    const store = useStore();
+    const numBots = ref(1);
+
+    const startGame = () => {
+      const players = [{ name: 'You' }];
+      for (let i = 1; i <= numBots.value; i++) {
+        players.push({ name: `Bot ${i}` });
       }
-    }
-  };
-  </script>
-  
+      store.dispatch('initializeGame', players);
+      router.push('/hand-play');
+    };
+
+    return { numBots, startGame };
+  },
+};
+</script>

@@ -1,24 +1,29 @@
+
 <template>
-    <div class="game-over">
-      <h1>Game Over!</h1>
-      <p>Winner: {{ winner }}</p>
-      <button @click="restartGame">Play Again</button>
+  <div>
+    <h1>Game Over</h1>
+    <div v-for="(score, player) in scores" :key="player">
+      {{ player }}: {{ score }}
     </div>
-  </template>
-  
-  <script>
-  export default {
-    computed: {
-      winner() {
-        return this.$store.state.winner;
-      }
-    },
-    methods: {
-      restartGame() {
-        this.$store.dispatch('restartGame');
-        this.$router.push('/setup');
-      }
-    }
-  };
-  </script>
-  
+    <button @click="restartGame">Play Again</button>
+  </div>
+</template>
+
+<script>
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { computed } from 'vue'; 
+export default {
+  setup() {
+    const router = useRouter();
+    const store = useStore();
+    const scores = computed(() => store.state.scores);
+
+    const restartGame = () => {
+      router.push('/');
+    };
+
+    return { scores, restartGame };
+  },
+};
+</script>
