@@ -17,15 +17,16 @@ export type Card = {
  * @param cards Cards to use
  */
 export function calculatePoints(cards: Card[]): number {
-    let total = 0
+    let total = 0;
     cards.forEach(c => {
-        if (c.type === "Number") { total += c.value }
+        if (c.type === "Number") {
+            total += c.value ?? 0;  // Use default value 0 if c.value is undefined
+        }
         if (c.type === "Draw Two") { total += 20 }
         if (c.type === "Reverse") { total += 20 }
         if (c.type === "Skip") { total += 20 }
         if (c.type === "Wild") { total += 50 }
         if (c.type === "Wild Draw Four") { total += 50 }
     });
-
-    return total
+    return total;
 }
