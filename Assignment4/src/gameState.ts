@@ -1,6 +1,6 @@
 import { GameState } from "./model/GameState";
 import { Player } from "./model/Player";
-import { Card } from "./model/Card";
+import { Card, CardType } from "./model/Card";
 import { createDeck, shuffle } from "./utils";
 import { Color } from "./model/Card";
 
@@ -28,6 +28,14 @@ export function initializeGame(playerNames: string[]): GameState {
 }
 
 
+export function accuseUno(state: GameState, playerIndex: number): GameState {
+  const player = state.players[playerIndex];
+  if (player.calledUno || player.hand.length > 1) return state;
+
+  const playerCopy = {...player}
+}
+
+
 export function drawCard(state: GameState, playerIndex: number): GameState {
   if (state.drawPile.length === 0) return state;
 
@@ -47,21 +55,32 @@ export function drawCard(state: GameState, playerIndex: number): GameState {
 export function playCard(
   state: GameState,
   playerIndex: number,
-  card: Card
+  card: Card,
+  wildcardColorOverride?: Color.Blue | Color.Green | Color.Red | Color.Yellow
 ): GameState | null {
   const player = state.players[playerIndex];
   const topCard = state.discardPile[state.discardPile.length - 1];
 
   if (!isPlayable(card, topCard)) return null;
+  const cardCopy = {...card}
+  // Changing wildcard (not +4) color before placing down
+  if (cardCopy.type === CardType.Wild) {
+    if (wildcardColorOverride === undefined) {
+      return null;
+    }
+    cardCopy.color = wildcardColorOverride;
+  }
 
   const newHand = player.hand.filter(c => c !== card);
-  const newDiscardPile = [...state.discardPile, card];
+  const newDiscardPile = [...state.discardPile, cardCopy];
   const newPlayers = state.players.map((p, i) =>
     i === playerIndex ? { ...p, hand: newHand } : p
   );
 
   return { ...state, discardPile: newDiscardPile, players: newPlayers };
 }
+
+
 
 
 function isPlayable(card: Card, topCard: Card): boolean {
