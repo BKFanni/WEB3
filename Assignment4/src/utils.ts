@@ -52,3 +52,23 @@ export function calculatePoints(cards: Card[]): number {
   });
   return total;
 }
+
+/**
+ * Calculates which player will be next
+ * @param currentPlayer Current player index
+ * @param playerAmount Total amount of players
+ * @param turnDirection Current turn direction (1 = forward, -1 = backward)
+ * @param cardType Card type placed (if omitted, acts as regular number card)
+ */
+export function calculateNextPlayer(
+  currentPlayer: number,
+  playerAmount: number,
+  turnDirection: number,
+  cardType?: CardType
+): number {
+  if (cardType === undefined) cardType = CardType.Number
+  if (cardType === CardType.Reverse) turnDirection *= -1;
+  let movement = turnDirection;
+  if (cardType === CardType.Skip) movement *= 2;
+  return (currentPlayer + movement + playerAmount) % playerAmount;
+}
