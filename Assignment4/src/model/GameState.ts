@@ -6,6 +6,7 @@ export type GameState = {
   discardPile: Card[];
   drawPile: Card[];
   turnOrder: number[];
+  turnDirection: number; // 1 = forward, -1 backward
   scores: Record<string, number>;
   currentPlayerIndex: number;
 }
