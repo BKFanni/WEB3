@@ -1,4 +1,3 @@
-import { makeAMove } from "./Bot";
 import { Card, CardColor, calculatePoints } from "./Card";
 import { Deck, createDeck } from "./Deck";
 import { Hand, PlayerType, createHand } from "./Hand";
@@ -19,13 +18,8 @@ export type Uno = {
     prevPlayer(): number;
     newRound(): Deck;
 
-    // Game interactions
     /**
-     * Returns updated Deck after a bot's move, errors if it's not a bot's move
-     */
-    botMove(): Deck;
-    /**
-     * Returns updated Deck after a players's move, errors if it's not a players's move
+     * Returns updated Deck after a player's move, errors if it's not a player's move
      */
     playerMove(cardNumber: number, wildcardColor?: CardColor): Deck;
     /**
@@ -37,7 +31,7 @@ export type Uno = {
      * Accuse player of not calling Uno
      */
     accuseUno(playerNumber: number): boolean;
-}
+};
 
 /**
  * Create a new Uno game
@@ -50,180 +44,131 @@ export function createGame(
     targetScore: number,
     startingCards: number
 ): Uno {
-    // Parameter checks
     if (players.size < 2) {
         throw new Error("Not enough players!");
     }
     if (targetScore <= 0) {
-        throw new Error("Target score must be positive number!");       
+        throw new Error("Target score must be positive number!");
     }
 
-    // Variable definitions
-    let playerArr: Hand[] = []
-    let scores: number[] = []
-    let currentPlayer: number = 0
-    // currentHand + movementDirection = next hand
-    let movementDirection: number = 1
-    let currentDeck: Deck = createDeck()
+    let playerArr: Hand[] = [];
+    let scores: number[] = [];
+    let currentPlayer: number = 0;
+    let movementDirection: number = 1;
+    let currentDeck: Deck = createDeck();
 
-    // Populating variables if needed
-    // Players
-    players.forEach(
-        (v, k) => playerArr.push(createHand(k, currentDeck, startingCards, v))
-    )
+    players.forEach((v, k) => playerArr.push(createHand(k, currentDeck, startingCards, v)));
 
-    // Function definitions
     const playerName = (playerNumber: number): string => {
-        if (playerNumber <= 0 || players.size <= playerNumber) {
+        if (playerNumber < 0 || playerNumber >= players.size) {
             throw new Error("Invalid player!");
         }
-        return players[playerNumber].name
-    }
+        return playerArr[playerNumber].name;
+    };
 
     const score = (playerNumber: number): number => {
-        if (playerNumber <= 0 || players.size <= playerNumber) {
+        if (playerNumber < 0 || playerNumber >= players.size) {
             throw new Error("Invalid player!");
         }
-        return scores[playerNumber]
-    }
+        return scores[playerNumber] || 0;
+    };
 
     const cardAmount = (playerNumber: number): number => {
-        if (playerNumber <= 0 || players.size <= playerNumber) {
+        if (playerNumber < 0 || playerNumber >= players.size) {
             throw new Error("Invalid player!");
         }
-        return playerArr[playerNumber].cards.length
-    }
+        return playerArr[playerNumber].cards.length;
+    };
 
     const winner = (): Hand | undefined => {
-        let winners = playerArr.filter((h, i) => {
-            return scores[i] >= targetScore
-        })
-
-        if (winners.length < 1) {
-            return undefined
-        }
-        return winners[0]
-    }
+        return playerArr.find((_, i) => scores[i] >= targetScore);
+    };
 
     const prevPlayer = (): number => {
-        if (movementDirection > 0) {
-            return (currentPlayer-movementDirection) % playerArr.length + playerArr.length
-        } else if (movementDirection < 0) {
-            return (currentPlayer-movementDirection) % playerArr.length
-        }
-        return currentPlayer
-    }
+        return (currentPlayer - movementDirection + playerArr.length) % playerArr.length;
+    };
 
     const newRound = (): Deck => {
-        currentPlayer = 0
-        movementDirection = 1
-        currentDeck = createDeck()
-        playerArr = []
-        players.forEach(
-            (v, k) => playerArr.push(createHand(k, currentDeck, startingCards, v))
-        )
-        return currentDeck
-    }
+        currentPlayer = 0;
+        movementDirection = 1;
+        currentDeck = createDeck();
+        playerArr = [];
+        players.forEach((v, k) => playerArr.push(createHand(k, currentDeck, startingCards, v)));
+        return currentDeck;
+    };
 
     const accuseUno = (playerNumber: number): boolean => {
-        if (playerNumber <= 0 || players.size <= playerNumber) {
+        if (playerNumber < 0 || playerNumber >= players.size) {
             throw new Error("Invalid player!");
         }
 
-        if (playerArr[playerNumber].calledUno || playerArr[playerNumber].cards.length > 1) {
+        const player = playerArr[playerNumber];
+        if (player.calledUno || player.cards.length > 1) {
             return false;
         }
 
         for (let i = 0; i < 4; i++) {
-            let c = playerArr[playerNumber].pickCard(currentDeck)
-            if (c === undefined) {
-                break
-            }
+            const card = player.pickCard(currentDeck);
+            if (!card) break;
         }
-        return true
-    }
+        return true;
+    };
 
     const callUno = (playerNumber: number): void => {
-        if (playerNumber <= 0 || players.size <= playerNumber) {
+        if (playerNumber < 0 || playerNumber >= players.size) {
             throw new Error("Invalid player!");
         }
-        playerArr[playerNumber].callUno()
-    }
+        playerArr[playerNumber].callUno();
+    };
 
     const playerPickCard = (playerNumber: number): [Deck, Hand] => {
-        if (playerNumber <= 0 || players.size <= playerNumber) {
+        if (playerNumber < 0 || playerNumber >= players.size) {
             throw new Error("Invalid player!");
         }
         if (currentPlayer !== playerNumber) {
-            throw new Error("Current player does not have the turn!");
+            throw new Error("Not this player's turn!");
         }
 
-        playerArr[playerNumber].pickCard(currentDeck)
-        return [currentDeck, playerArr[playerNumber]]
-    }
+        playerArr[playerNumber].pickCard(currentDeck);
+        return [currentDeck, playerArr[playerNumber]];
+    };
 
     const playerMove = (cardNumber: number, wildcardColor?: CardColor): Deck => {
         if (wildcardColor !== undefined) {
-            playerArr[currentPlayer].changeWildcardColor(cardNumber, wildcardColor)
+            playerArr[currentPlayer].changeWildcardColor(cardNumber, wildcardColor);
         }
 
-        let c = playerArr[currentPlayer].playCard(cardNumber, currentDeck)
-        awardIfWonRound()
-        incrementCurrentPlayer(c)
+        const playedCard = playerArr[currentPlayer].playCard(cardNumber, currentDeck);
+        awardIfWonRound();
+        incrementCurrentPlayer(playedCard);
 
-        return currentDeck
-    }
+        return currentDeck;
+    };
 
-    const botMove = (): Deck => {
-        if (playerArr[currentPlayer].playerType === PlayerType.Player) {
-            throw new Error("It is human player turn!");
-        }
-        let placed = makeAMove(playerArr[currentPlayer], this)
-        awardIfWonRound()
-        incrementCurrentPlayer(placed)
-
-        return currentDeck
-    }
-
-    /**
-     * Internal method to award player if they have 0 cards in hand and have called uno
-     */
     const awardIfWonRound = (): void => {
-        if (playerArr[currentPlayer].cards.length === 0 && playerArr[currentPlayer].calledUno) {
-            // Player won! Adding points from remaining cards
-            playerArr.forEach(p => {
-                scores[currentPlayer] += calculatePoints(p.cards)
-            });
-        } else if (playerArr[currentPlayer].cards.length === 0) {
-            // Could've won, but forgot to call uno. Adding 4 cards
+        const player = playerArr[currentPlayer];
+        if (player.cards.length === 0 && player.calledUno) {
+            scores[currentPlayer] += playerArr.reduce((sum, p) => sum + calculatePoints(p.cards), 0);
+        } else if (player.cards.length === 0) {
             for (let i = 0; i < 4; i++) {
-                playerPickCard(currentPlayer)
+                playerPickCard(currentPlayer);
             }
         }
-    }
+    };
 
-    /**
-     * Internal function to change/increment player movement
-     * @param card Card to base movement off of
-     */
     const incrementCurrentPlayer = (card: Card): void => {
-        let movement = movementDirection
-        if (card !== undefined) {
+        let movement = movementDirection;
+        if (card) {
             if (card.type === "Reverse") {
-                movementDirection *= -1
-                movement = movementDirection
+                movementDirection *= -1;
+                movement = movementDirection;
             }
             if (card.type === "Skip") {
-                movement *= 2
+                movement *= 2;
             }
         }
-
-        if (movement > 0) {
-            currentPlayer = (currentPlayer+movement) % playerArr.length
-        } else if (movement < 0) {
-            currentPlayer = (currentPlayer+movement) % playerArr.length + playerArr.length
-        }
-    }
+        currentPlayer = (currentPlayer + movement + playerArr.length) % playerArr.length;
+    };
 
     return {
         targetScore,
@@ -239,7 +184,6 @@ export function createGame(
         accuseUno,
         callUno,
         playerPickCard,
-        playerMove,
-        botMove
-    }
+        playerMove
+    };
 }
