@@ -1,7 +1,7 @@
 "use server"
 
 import GameDb from "@/app/models/game"
-import { Card, Game } from "@/app/models/gameTypes"
+import { Card, Game, LimitedGameInfo } from "@/app/models/gameTypes"
 import { isError } from "@/app/models/utils"
 import { redirect } from "next/navigation"
 
@@ -30,11 +30,11 @@ export async function joinGame(gameId: string, playerIdHex: string, username: st
     }
 }
 
-export async function getGameList(): Game[] {
+export async function getGameList(): LimitedGameInfo[] {
 
 }
 
-export async function getGameInfo(gameId: string): Game {
+export async function getGameInfo(gameId: string): LimitedGameInfo {
 
 }
 

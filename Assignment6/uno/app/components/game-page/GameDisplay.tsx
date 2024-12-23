@@ -3,7 +3,7 @@ import { getGameInfo } from '@/app/api/game/game-actions'
 import { isError, sleep } from '@/app/models/utils'
 import React, { useEffect, useState } from 'react'
 import "@/app/game/game-style.css"
-import { Card, Game } from '@/app/models/gameTypes'
+import { Card, LimitedGameInfo } from '@/app/models/gameTypes'
 
 type GameDisplayParams = {
     gameId: string
@@ -20,7 +20,7 @@ const PlayerTitle: React.FC<PlayerTitleParams> = ({username}) => {
 }
 
 const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
-    const [gameInfo, setGames] = useState<Game>()
+    const [gameInfo, setGames] = useState<LimitedGameInfo>()
     const [lastCard, updateLastCard] = useState<Card | null>(null)
     
     useEffect(() => {
