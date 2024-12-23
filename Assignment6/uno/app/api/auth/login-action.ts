@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server"
 import { z } from "zod"
-import User, { comparePasswordAsync } from "../../models/user"
+import User, { comparePasswordAsync } from "../../models/database/user"
 import { isError } from "../../models/utils"
 import { createSession } from "./session";
 import { redirect } from "next/navigation";

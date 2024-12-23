@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react'
 
 import "@/app/game/game-style.css"
 import { SessionPayload } from '@/app/api/auth/session'
-import { drawCard, getGameInfo } from '@/app/api/game/game-actions'
-import { LimitedGameInfo } from '@/app/models/gameTypes'
+import { checkPlayersTurn, drawCard } from '@/app/api/game/game-actions'
 import { isError, sleep } from '@/app/models/utils'
 
 type Params = {
@@ -13,13 +12,13 @@ type Params = {
 }
 
 const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
-    const [gameInfo, setGameInfo] = useState<LimitedGameInfo>()
+    const [playersTurn, setPlayerTurn] = useState<boolean>(false)
     useEffect(() => {
         const updateInfo = async () => {
+            await sleep(100)
             try {
-                const result = await getGameInfo(gameId)
-                setGameInfo(result)
-                await sleep(100)
+                const result = await checkPlayersTurn(gameId, session.sessionToEncrypt)
+                setPlayerTurn(result)
             } catch (err) {
                 if (isError(err))
                     console.error("Error fetching game data!", err.message)
@@ -27,14 +26,19 @@ const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
         }
 
         updateInfo()
-    }, [gameId])
+    }, [gameId, session.sessionToEncrypt])
 
-    const handleClick = () => {
-        drawCard(gameId, session.sessionToEncrypt)
+    const handleClick = async () => {
+        if (!playersTurn)
+            return
+
+        const cardDrawn = await drawCard(gameId, session.sessionToEncrypt)
+        if (cardDrawn)
+            setPlayerTurn(false)
     }
 
     return (
-        <button className="draw-card-button" onClick={handleClick}>Draw Card</button>
+        <button className="draw-card-button" onClick={handleClick} disabled={!playersTurn}>Draw Card</button>
     )
 }
 

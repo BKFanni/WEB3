@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server"
 
-import User from "@/app/models/user";
+import User from "@/app/models/database/user";
 import { isError } from "@/app/models/utils";
 import { z } from "zod"
 import { createSession } from "./session";

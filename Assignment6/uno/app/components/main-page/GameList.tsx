@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react'
 import JoinGameButton from './JoinGameButton'
 import { getGameList } from '@/app/api/game/game-actions'
 import { isError, sleep } from '@/app/models/utils'
-import { Game } from '@/app/models/gameTypes'
+import { GameState } from '@/app/models/game/gameState'
 
 type GameListParams = {
     playerIdHex: string
 }
 
 const GameList: React.FC<GameListParams> = ({playerIdHex}) => {
-    const [games, setGames] = useState<Game[]>([])
+    const [games, setGames] = useState<GameState[]>([])
 
     useEffect(() => {
         const updateGames = async () => {

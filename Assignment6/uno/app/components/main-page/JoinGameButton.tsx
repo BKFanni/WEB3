@@ -8,14 +8,14 @@ type Params = {
 }
 
 const JoinGameButton: React.FC<Params> = ({gameId, playerIdHex}) => {
-    const handleClick = () => {
+    const handleClick = async () => {
         const username = prompt("Enter your name")
         if (username === null || username.length < 1) {
             alert("Username must be at least 1 character!")
             return
         }
 
-        joinGame(gameId, playerIdHex, username)
+        await joinGame(gameId, playerIdHex, username)
     }
 
     return (

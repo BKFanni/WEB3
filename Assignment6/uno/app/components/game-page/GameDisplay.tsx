@@ -3,7 +3,8 @@ import { getGameInfo } from '@/app/api/game/game-actions'
 import { isError, sleep } from '@/app/models/utils'
 import React, { useEffect, useState } from 'react'
 import "@/app/game/game-style.css"
-import { Card, LimitedGameInfo } from '@/app/models/gameTypes'
+import { Card } from '@/app/models/game/card'
+import { Player } from '@/app/models/game/player'
 
 type GameDisplayParams = {
     gameId: string
@@ -20,15 +21,33 @@ const PlayerTitle: React.FC<PlayerTitleParams> = ({username}) => {
 }
 
 const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
-    const [gameInfo, setGames] = useState<LimitedGameInfo>()
-    const [lastCard, updateLastCard] = useState<Card | null>(null)
+    // Saving a simplified version of game state
+    const [gameInfo, setGameInfo] = useState<{
+        id: string
+        name: string
+        lastCard: Card | null
+        players: Player[]
+        currentPlayerIndex: number
+    }>()
     
     useEffect(() => {
         const updateInfo = async () => {
-            try {
-                const result = await getGameInfo(gameId)
-                setGames(result)
+            if (gameInfo)
                 await sleep(100)
+
+            try {
+                const serverGameInfo = await getGameInfo(gameId)
+                const simplifiedInfo = {
+                    id: serverGameInfo.id,
+                    name: serverGameInfo.name,
+                    players: serverGameInfo.players,
+                    currentPlayerIndex: serverGameInfo.currentPlayerIndex,
+                    lastCard: serverGameInfo.discardPile.length-1 < 0 ?
+                        null
+                        : serverGameInfo.discardPile[serverGameInfo.discardPile.length-1]
+                }
+
+                setGameInfo(simplifiedInfo)
             } catch (err) {
                 if (isError(err))
                     console.error("Error fetching game data!", err.message)
@@ -36,27 +55,22 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
         }
 
         updateInfo()
-    }, [gameId])
-
-    const checkLastCard = (): Card | undefined => {
-        if (!gameInfo || gameInfo.discardPile.length-1 < 0) {
-            updateLastCard(null)
-            return
-        }
-
-        updateLastCard(gameInfo.discardPile[gameInfo.discardPile.length-1])
-        return gameInfo.discardPile[gameInfo.discardPile.length-1]
-    }
+    })
 
     return (
         <div>
-            <h3>{(gameInfo && gameInfo.players.length > 1) ? <PlayerTitle username={gameInfo.name}/> : "Waiting for players..."}</h3>
+            <h3>{(gameInfo && gameInfo.players.length > 1) ? <PlayerTitle username={gameInfo.players[gameInfo.currentPlayerIndex].name}/> : "Waiting for players..."}</h3>
             <div className="discard-pile">
                 <p>Top of Discard Pile:</p>
                 <div className={
-                    ["card", checkLastCard() && lastCard ? lastCard : ""].join(" ")
+                    ["card", gameInfo && gameInfo.lastCard ? gameInfo.lastCard.color : ""].join(" ")
                 }>
-                    { checkLastCard() && lastCard ? lastCard.value : "-" }
+                    {
+                    // If no last card, display "-", else show value, if undefined display card type
+                    gameInfo && gameInfo.lastCard ?
+                        gameInfo.lastCard.value ? gameInfo.lastCard.value : gameInfo.lastCard.type
+                    : "-" 
+                    }
                 </div>
             </div>
         </div>
