@@ -17,6 +17,10 @@ const gameSchema = new mongoose.Schema({
     unique: true
   },
   players: [playerSchema],         // Array of players
+  maxPlayers: {
+    type: Number,
+    default: 4
+  },
   discardPile: Array,              // The discard pile of cards
   drawPile: Array,                 // The draw pile of cards
   currentPlayerIndex: {
@@ -37,4 +41,4 @@ const gameSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Game', gameSchema);
+export default mongoose.model('Game', gameSchema);

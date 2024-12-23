@@ -13,3 +13,7 @@ export function isObject(obj: unknown): obj is object {
 export function isArray(obj: unknown): obj is unknown[] {
     return Array.isArray(obj)
 }
+
+export function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
