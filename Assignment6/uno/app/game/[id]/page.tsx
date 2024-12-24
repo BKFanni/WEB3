@@ -1,5 +1,5 @@
 import React from "react"
-import "@/app/game/game-style.css"
+import "./game-style.css"
 import { getSession } from "@/app/api/auth/session"
 import { redirect } from "next/navigation"
 import GameDisplay from "@/app/components/game-page/GameDisplay"

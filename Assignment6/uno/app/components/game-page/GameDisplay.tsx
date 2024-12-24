@@ -2,7 +2,7 @@
 import { getGameInfo } from '@/app/api/game/game-actions'
 import { isError, sleep } from '@/app/models/utils'
 import React, { useEffect, useState } from 'react'
-import "@/app/game/game-style.css"
+import "@/app/game/[id]/game-style.css"
 import { Card } from '@/app/models/game/card'
 import { Player } from '@/app/models/game/player'
 

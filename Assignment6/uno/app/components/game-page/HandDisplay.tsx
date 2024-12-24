@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import "@/app/game/game-style.css"
+import "@/app/game/[id]/game-style.css"
 import { SessionPayload } from '@/app/api/auth/session'
 import { isError, sleep } from '@/app/models/utils'
 import { checkPlayersTurn, getPlayersCards, playCard } from '@/app/api/game/game-actions'
