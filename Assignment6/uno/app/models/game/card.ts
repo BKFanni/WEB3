@@ -16,7 +16,7 @@ export enum CardType {
 }
 
 export type Card = {
-    id: string
+    id: number
     color: Color
     type: CardType
     value?: number 

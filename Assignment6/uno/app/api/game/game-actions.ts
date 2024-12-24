@@ -24,11 +24,12 @@ export async function joinGame(gameId: string, playerIdHex: string, username: st
         await game.save()
 
         // TO DO: Game management in server memory
-        redirect(`/game/${gameId}`)
     } catch (err) {
         if (isError(err))
             console.error("Error while joining game! ", err.message)
+        return
     }
+    redirect(`/game/${gameId}`)
 }
 
 export async function getGameList(): Promise<GameState[]> {
@@ -58,7 +59,7 @@ export async function checkPlayersTurn(gameId: string, playerIdHex: string): Pro
 }
 
 export async function playCard(gameId: string, playerIdHex: string, card: Card): Promise<boolean> {
-    return gameId === playerIdHex && card.id === "test"
+    return gameId === playerIdHex && card.id === 0
 }
 
 export async function getPlayersCards(gameId: string, playerIdHex: string): Promise<Card[]> {
