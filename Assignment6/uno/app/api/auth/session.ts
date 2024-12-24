@@ -21,7 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET ? process.env.JWT_SECRET : "test"
  * @param payload 
  * @returns 
  */
-export function encryptJWT(payload: SessionPayload): string {
+export async function encryptJWT(payload: SessionPayload): Promise<string> {
     return jwt.sign(payload, JWT_SECRET, {algorithm: "HS256", expiresIn: cookiesConfig.maxAge})
 }
 
@@ -65,7 +65,7 @@ export async function getSession(): Promise<SessionPayload | undefined> {
  */
 export async function createSession(sessionToEncrypt: string) {
     const expiresAt = new Date(Date.now() + cookiesConfig.maxAge*1000)
-    const encryptedJWT = encryptJWT({sessionToEncrypt, expiresAt});
+    const encryptedJWT = await encryptJWT({sessionToEncrypt, expiresAt});
     (await cookies()).set(
         'session',
         encryptedJWT,
