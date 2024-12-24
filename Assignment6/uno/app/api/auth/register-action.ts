@@ -60,7 +60,6 @@ export async function registerAction(prevState: RegisterState, formData: FormDat
 
         // Creating user successful, creating a session
         await createSession(user._id.toHexString())
-        redirect("/")
     } catch (err) {
         if (isError(err)) {
             console.error(err.message)
@@ -68,7 +67,8 @@ export async function registerAction(prevState: RegisterState, formData: FormDat
             console.error(err.stack)
             newState.zodErrors = {username: ["Server Error! "+err.message]}
         }
+        return {...prevState, ...newState}
     }
 
-    return {...prevState, ...newState}
+    redirect("/")
 }

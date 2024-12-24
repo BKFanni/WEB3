@@ -59,13 +59,13 @@ export async function authAction(prevState: authState, formData: FormData) {
 
         // Credentials match, creating JWT cookie and redirecting to main page
         await createSession(user._id.toHexString())
-        redirect("/")
     } catch (err) {
         if (isError(err)) {
             console.error(err.message)
             newState.zodErrors = {username: ["Server Error! "+err.message]}
         }
+        return {...prevState, ...newState}
     }
 
-    return {...prevState, ...newState}
+    redirect("/")
 }
