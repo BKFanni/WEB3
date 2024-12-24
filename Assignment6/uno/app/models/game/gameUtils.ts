@@ -72,3 +72,21 @@ export function calculateNextPlayer(
     if (cardType === CardType.Skip) movement *= 2;
     return (currentPlayer + movement + playerAmount) % playerAmount;
 }
+
+/**
+ * Check if the card is playable
+ * @param card the card to play
+ * @param topCard last card on discard pile
+ * @returns Can the card be played
+ */
+export function isCardPlayable(card: Card, topCard: Card): boolean {
+    return (
+        card.color === topCard.color ||
+        card.color === Color.Wild  ||
+        (
+            card.type === CardType.Number && topCard.type === CardType.Number &&
+            card.value !== undefined && topCard.value !== undefined &&
+            card.value === topCard.value
+        )
+    );
+}
