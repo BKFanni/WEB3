@@ -119,8 +119,14 @@ export async function drawCard(gameId: string, playerIdHex: string): Promise<boo
 
         let convertedGame = convertToGameState(game)
         // Not player's turn
-        if (convertedGame.players[convertedGame.currentPlayerIndex].playerId !== playerIdHex)
+        if (convertedGame.players[convertedGame.currentPlayerIndex].playerId !== playerIdHex) {
+            console.log(`Current player id (${convertedGame.players[convertedGame.currentPlayerIndex].playerId}) doesn't match player id ${playerIdHex}!`)
             return false
+        }
+        if (convertedGame.players.length < 2) {
+            console.log(`Not enough players!`)
+            return false
+        }
 
         convertedGame = pickCard(convertedGame, convertedGame.currentPlayerIndex)
         convertedGame.currentPlayerIndex = calculateNextPlayer(
@@ -151,6 +157,11 @@ export async function checkPlayersTurn(gameId: string, playerIdHex: string): Pro
         }
 
         const convertedGame = convertToGameState(game)
+        if (convertedGame.players.length < 2) {
+            console.log(`Not enough players!`)
+            return false
+        }
+        
         return convertedGame.players[convertedGame.currentPlayerIndex].playerId === playerIdHex
     } catch (err) {
         if (isError(err))
@@ -172,8 +183,14 @@ export async function playCard(gameId: string, playerIdHex: string, card: Card):
 
         let convertedGame = convertToGameState(game)
         // Not player's turn
-        if (convertedGame.players[convertedGame.currentPlayerIndex].playerId !== playerIdHex)
+        if (convertedGame.players[convertedGame.currentPlayerIndex].playerId !== playerIdHex) {
+            console.log(`Current player id (${convertedGame.players[convertedGame.currentPlayerIndex].playerId}) doesn't match player id ${playerIdHex}!`)
             return false
+        }
+        if (convertedGame.players.length < 2) {
+            console.log(`Not enough players!`)
+            return false
+        }
 
         convertedGame = playCurrentPlayerCard(convertedGame, card)
         game.set(convertedGame)
