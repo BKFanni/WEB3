@@ -62,6 +62,7 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
 
     return (
         <div>
+            <h3>Game name: {gameInfo ? gameInfo.name : "-"}</h3>
             <h3>{(gameInfo && gameInfo.players.length > 1) ? <PlayerTitle username={gameInfo.players[gameInfo.currentPlayerIndex].name}/> : "Waiting for players..."}</h3>
             <div className="discard-pile">
                 <p>Top of Discard Pile:</p>

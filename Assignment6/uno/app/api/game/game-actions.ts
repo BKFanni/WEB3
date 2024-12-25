@@ -151,8 +151,36 @@ export async function playCard(gameId: string, playerIdHex: string, card: Card):
 }
 
 export async function getPlayersCards(gameId: string, playerIdHex: string): Promise<Card[]> {
-    if (gameId === playerIdHex)
-        return []
+    try {
+        // Database stuff
+        const dbCon = await connectToDatabase()
+        if (!dbCon) {
+            console.error("Couldn't connect to database!")
+            return []
+        }
 
-    return []
+        const game = await gameModel.findOne({ gameId })
+        if (!game) {
+            console.log("Game not found:", gameId)
+            dbCon.close()
+            return []
+        }
+
+        const convertedGame = convertToGameState(game)
+        dbCon.close()
+        let cards: Card[] = []
+        for (let i = 0; i < convertedGame.players.length; i++) {
+            const player = convertedGame.players[i]
+            if (player.playerId !== playerIdHex || player.hand === undefined)
+                continue
+
+            cards = player.hand
+        }
+
+        return cards
+    } catch (err) {
+        if (isError(err))
+            console.error(`Couldn't get ${playerIdHex} player's cards!`, err.message)
+        return []
+    }
 }
