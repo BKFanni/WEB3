@@ -84,7 +84,7 @@ export function calculateNextPlayer(
 export function isCardPlayable(card: Card, topCard: Card): boolean {
     return (
         card.color === topCard.color ||
-        card.color === Color.Wild  ||
+        card.color === Color.Wild  || topCard.color === Color.Wild ||
         (
             card.cardType === CardType.Number && topCard.cardType === CardType.Number &&
             card.value !== undefined && topCard.value !== undefined &&

@@ -18,13 +18,21 @@ type PlayCardParams = {
 }
 
 const PlayCardButton: React.FC<PlayCardParams> = ({session, gameId, card}) => {
-    const [playersTurn, setPlayerTurn] = useState<boolean>(false)
+    const [playersTurn, setPlayerTurn] = useState<{
+        turn: boolean,
+        lastFetch: Date
+    }>({turn: false, lastFetch: new Date(0)})
     useEffect(() => {
         const updateInfo = async () => {
-            await sleep(250)
+            if (Date.now() - playersTurn.lastFetch.getTime() < 300)
+                await sleep(300)
+            
             try {
                 const result = await checkPlayersTurn(gameId, session.sessionToEncrypt)
-                setPlayerTurn(result)
+                setPlayerTurn({
+                    turn: result,
+                    lastFetch: new Date()
+                })
             } catch (err) {
                 if (isError(err))
                     console.error("Error fetching game data!", err.message)
@@ -32,7 +40,7 @@ const PlayCardButton: React.FC<PlayCardParams> = ({session, gameId, card}) => {
         }
 
         updateInfo()
-    }, [gameId, session.sessionToEncrypt])
+    })
 
     const handleClick = async () => {
         if (!playersTurn)
@@ -40,7 +48,10 @@ const PlayCardButton: React.FC<PlayCardParams> = ({session, gameId, card}) => {
 
         const cardPlayed = await playCard(gameId, session.sessionToEncrypt, card)
         if (cardPlayed)
-            setPlayerTurn(false)
+            setPlayerTurn({
+                turn: false,
+                lastFetch: new Date()
+            })
     }
 
     return (
@@ -80,7 +91,13 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
             <ul>
                 {cards.cards.map((card) => (
                     <li key={card.cardId} className='card-container'>
-                        <div className={['card', card.color].join(" ")}>Color: {card.color}, {card.value ? `Value: ${card.value}, Type: Number` : `Type: ${card.cardType}`}</div>
+                        <div className={['card', card.color].join(" ")}>
+                            Color: {card.color}, {
+                                card.value !== undefined
+                                ? `Value: ${card.value}, Type: Number`
+                                : `Type: ${card.cardType}`
+                            }
+                        </div>
                         <PlayCardButton
                             session={session}
                             gameId={gameId}

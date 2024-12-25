@@ -18,7 +18,7 @@ const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
     useEffect(() => {
         const updateInfo = async () => {
             if (Date.now() - playersTurn.lastFetch.getTime() < 300)
-                await sleep(250)
+                await sleep(300)
 
             try {
                 const result = await checkPlayersTurn(gameId, session.sessionToEncrypt)
@@ -48,7 +48,7 @@ const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
     }
 
     return (
-        <button className="draw-card-button" onClick={handleClick} disabled={!playersTurn}>Draw Card</button>
+        <button className="draw-card-button" onClick={handleClick} disabled={!playersTurn.turn}>Draw Card</button>
     )
 }
 

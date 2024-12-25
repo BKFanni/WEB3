@@ -189,7 +189,7 @@ export function playCurrentPlayerCard(state: GameState, card: Card): GameState {
     let gameCopy = {...state}
     const newDiscardPile = [...state.discardPile]
     newDiscardPile.push(plrCards[playerCardIndex])
-    plrCards.pop()
+    plrCards.splice(playerCardIndex, 1)
     const newPlayer: Player = {...state.players[state.currentPlayerIndex], hand: plrCards}
     gameCopy.discardPile = newDiscardPile
     gameCopy.players[state.currentPlayerIndex] = newPlayer

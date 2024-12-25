@@ -63,7 +63,11 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
     return (
         <div>
             <h3>Game name: {gameInfo ? gameInfo.name : "-"}</h3>
-            <h3>{(gameInfo && gameInfo.players.length > 1) ? <PlayerTitle username={gameInfo.players[gameInfo.currentPlayerIndex].name}/> : "Waiting for players..."}</h3>
+            {
+                (gameInfo && gameInfo.players.length > 1)
+                ? <h3>It&apos;s <PlayerTitle username={gameInfo.players[gameInfo.currentPlayerIndex].name}/>&apos;s turn!</h3>
+                : <h3>Waiting for players...</h3>
+            }
             <div className="discard-pile">
                 <p>Top of Discard Pile:</p>
                 <div className={
@@ -71,7 +75,7 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
                 }>{
                     // If no last card, display "-", else show value, if undefined display card type
                     gameInfo && gameInfo.lastCard ?
-                        gameInfo.lastCard.value ? `Value: ${gameInfo.lastCard.value}, Type: Number, Color: ${gameInfo.lastCard.color}`
+                        gameInfo.lastCard.value !== undefined ? `Value: ${gameInfo.lastCard.value}, Type: Number, Color: ${gameInfo.lastCard.color}`
                         : `Type: ${gameInfo.lastCard.cardType}, Color: ${gameInfo.lastCard.color}`
                     : "-" 
                 }
