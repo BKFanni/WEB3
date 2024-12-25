@@ -2,44 +2,28 @@
 
 import { convertToGameState, gameModel } from "@/app/models/database/game"
 import { Card } from "@/app/models/game/card"
-import { GameState, initializeGame } from "@/app/models/game/gameState"
+import { addPlayer, GameState, initializeGame, pickCard, playCurrentPlayerCard } from "@/app/models/game/gameState"
 import { isError } from "@/app/models/utils"
 import { redirect } from "next/navigation"
 import { connectToDatabase } from "../db-connection"
-import { removeGameStateSecrets } from "@/app/models/game/gameUtils"
+import { calculateNextPlayer, removeGameStateSecrets } from "@/app/models/game/gameUtils"
 
 export async function joinGame(gameId: string, playerIdHex: string, username: string) {
     try {
         // Database stuff
-        const dbCon = await connectToDatabase()
-        if (!dbCon) {
-            console.error("Couldn't connect to database!")
-            return
-        }
+        await connectToDatabase()
 
         const game = await gameModel.findOne({ gameId })
         if (!game) {
             console.log("Game not found:", gameId)
-            dbCon.close()
             return
         }
+        let convertedGame = convertToGameState(game)
 
-        // Checking if game is full
-        if (game.players.length >= game.maxPlayers) {
-            console.log("Game is full!")
-            dbCon.close()
-            return
-        }
-
-        game.players.push({
-            playerId: playerIdHex,
-            name: username,
-            score: 0,
-            calledUno: false,
-            hand: []
-        })
+        // Adding player
+        convertedGame = addPlayer({playerId: playerIdHex, name: username}, convertedGame) 
+        game.set(convertedGame)
         await game.save()
-        dbCon.close()
     } catch (err) {
         if (isError(err))
             console.error("Error while joining game! ", err.message)
@@ -51,11 +35,7 @@ export async function joinGame(gameId: string, playerIdHex: string, username: st
 export async function getGameList(): Promise<GameState[]> {
     try {
         // Database stuff
-        const dbCon = await connectToDatabase()
-        if (!dbCon) {
-            console.error("Couldn't connect to database!")
-            return []
-        }
+        await connectToDatabase()
 
         const games = await gameModel.find()
         const convertedGames: GameState[] = []
@@ -63,7 +43,6 @@ export async function getGameList(): Promise<GameState[]> {
             const converted = convertToGameState(g)
             convertedGames.push(removeGameStateSecrets(converted))
         });
-        dbCon.close()
 
         return convertedGames
     } catch (err) {
@@ -81,22 +60,16 @@ export async function getGameList(): Promise<GameState[]> {
 export async function getGameInfo(gameId: string): Promise<GameState | undefined> {
     try {
         // Database stuff
-        const dbCon = await connectToDatabase()
-        if (!dbCon) {
-            console.error("Couldn't connect to database!")
-            return
-        }
+        await connectToDatabase()
 
         const game = await gameModel.findOne({ gameId })
         if (!game) {
             console.log("Game not found:", gameId)
-            dbCon.close()
             return
         }
 
         const convertedGame = convertToGameState(game)
         const safeGame = removeGameStateSecrets(convertedGame)
-        dbCon.close()
         
         return safeGame
     } catch (err) {
@@ -110,11 +83,7 @@ export async function createGame(gameName: string, playerIdHex: string, username
     const newGameState = initializeGame([{playerId: playerIdHex, name: username}], gameName, 4)
     try {
         // Database stuff
-        const dbCon = await connectToDatabase()
-        if (!dbCon) {
-            console.error("Couldn't connect to database!")
-            return false
-        }
+        await connectToDatabase()
 
         const dbGame = new gameModel({
             gameId: newGameState.gameId,
@@ -128,7 +97,6 @@ export async function createGame(gameName: string, playerIdHex: string, username
             players: newGameState.players
         })
         await dbGame.save()
-        dbCon.close()
     } catch (err) {
         if (isError(err))
             console.error("Couldn't create a new game!", err.message)
@@ -139,35 +107,98 @@ export async function createGame(gameName: string, playerIdHex: string, username
 }
 
 export async function drawCard(gameId: string, playerIdHex: string): Promise<boolean> {
-    return gameId === playerIdHex
+    try {
+        // Database stuff
+        await connectToDatabase()
+
+        const game = await gameModel.findOne({ gameId })
+        if (!game) {
+            console.log("Game not found:", gameId)
+            return false
+        }
+
+        let convertedGame = convertToGameState(game)
+        // Not player's turn
+        if (convertedGame.players[convertedGame.currentPlayerIndex].playerId !== playerIdHex)
+            return false
+
+        convertedGame = pickCard(convertedGame, convertedGame.currentPlayerIndex)
+        convertedGame.currentPlayerIndex = calculateNextPlayer(
+            convertedGame.currentPlayerIndex,
+            convertedGame.players.length,
+            convertedGame.direction
+        )
+        game.set(convertedGame)
+        await game.save()
+        
+        return true
+    } catch (err) {
+        if (isError(err))
+            console.error(`Couldn't pick a new card for player ${playerIdHex} in game ${gameId}!`, err.message)
+        return false
+    }
 }
 
 export async function checkPlayersTurn(gameId: string, playerIdHex: string): Promise<boolean> {
-    return gameId === playerIdHex
+    try {
+        // Database stuff
+        await connectToDatabase()
+
+        const game = await gameModel.findOne({ gameId })
+        if (!game) {
+            console.log("Game not found:", gameId)
+            return false
+        }
+
+        const convertedGame = convertToGameState(game)
+        return convertedGame.players[convertedGame.currentPlayerIndex].playerId === playerIdHex
+    } catch (err) {
+        if (isError(err))
+            console.error(`Couldn't check ${playerIdHex} player's turn for game ${gameId}!`, err.message)
+        return false
+    }
 }
 
 export async function playCard(gameId: string, playerIdHex: string, card: Card): Promise<boolean> {
-    return gameId === playerIdHex && card.cardId === 0
+    try {
+        // Database stuff
+        await connectToDatabase()
+
+        const game = await gameModel.findOne({ gameId })
+        if (!game) {
+            console.log("Game not found:", gameId)
+            return false
+        }
+
+        let convertedGame = convertToGameState(game)
+        // Not player's turn
+        if (convertedGame.players[convertedGame.currentPlayerIndex].playerId !== playerIdHex)
+            return false
+
+        convertedGame = playCurrentPlayerCard(convertedGame, card)
+        game.set(convertedGame)
+        await game.save()
+        
+        return true
+    } catch (err) {
+        if (isError(err))
+            console.error(`Couldn't play ${playerIdHex} player's card for game ${gameId}!`, err.message)
+        return false
+    }
 }
 
 export async function getPlayersCards(gameId: string, playerIdHex: string): Promise<Card[]> {
     try {
         // Database stuff
-        const dbCon = await connectToDatabase()
-        if (!dbCon) {
-            console.error("Couldn't connect to database!")
-            return []
-        }
+        await connectToDatabase()
 
         const game = await gameModel.findOne({ gameId })
         if (!game) {
             console.log("Game not found:", gameId)
-            dbCon.close()
             return []
         }
 
         const convertedGame = convertToGameState(game)
-        dbCon.close()
         let cards: Card[] = []
         for (let i = 0; i < convertedGame.players.length; i++) {
             const player = convertedGame.players[i]

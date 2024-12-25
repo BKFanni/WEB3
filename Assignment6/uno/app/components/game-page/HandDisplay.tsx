@@ -73,7 +73,7 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
                 {cards.map((card) => (
                     <li key={card.cardId} className='card-container'>
                         <div className={['card', card.color].join(" ")}>
-                            {card.color} {card.value ? card.value : card.cardType}
+                            Color: {card.color}, Value/Type: {card.value ? card.value : card.cardType}
                         </div>
                         <PlayCardButton
                             session={session}

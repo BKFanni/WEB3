@@ -38,11 +38,7 @@ export async function authAction(prevState: authState, formData: FormData) {
         const {username, password} = validatedFields.data
 
         // Database stuff
-        const dbCon = await connectToDatabase()
-        if (!dbCon) {
-            newState.zodErrors = {username: ["Server Error! Failed to connect to database!"]}
-            return {...prevState, ...newState}
-        }
+        await connectToDatabase()
         const user = await User.findOne({username})
         if (!user) {
             newState.zodErrors = {username: ["Username not found!"]}
@@ -54,8 +50,6 @@ export async function authAction(prevState: authState, formData: FormData) {
             newState.zodErrors = {password: ["Invalid password!"]}
             return {...prevState, ...newState}
         }
-
-        dbCon.close()
 
         // Credentials match, creating JWT cookie and redirecting to main page
         await createSession(user._id.toHexString())

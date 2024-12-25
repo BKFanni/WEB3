@@ -42,11 +42,7 @@ export async function registerAction(prevState: RegisterState, formData: FormDat
         const {username, password} = validatedFields.data
 
         // Database stuff
-        const dbCon = await connectToDatabase()
-        if (!dbCon) {
-            newState.zodErrors = {username: ["Server Error! Failed to connect to database!"]}
-            return {...prevState, ...newState}
-        }
+        await connectToDatabase()
         let user = await User.findOne({username})
 
         if (user) {
@@ -56,15 +52,12 @@ export async function registerAction(prevState: RegisterState, formData: FormDat
 
         user = new User({username, password})
         await user.save()
-        dbCon.close()
 
         // Creating user successful, creating a session
         await createSession(user._id.toHexString())
     } catch (err) {
         if (isError(err)) {
             console.error(err.message)
-            console.error(err.cause)
-            console.error(err.stack)
             newState.zodErrors = {username: ["Server Error! "+err.message]}
         }
         return {...prevState, ...newState}
