@@ -4,7 +4,7 @@ import { calculateNextPlayer, createDeck, shuffle } from "./gameUtils"
 import { Player } from "./player"
 
 export type GameState = {
-    id: string
+    gameId: string
     name: string
     players: Player[]
     maxPlayers: number
@@ -26,7 +26,7 @@ export type GameState = {
  */
 export function initializeGame(
     playerNames: {
-        id: string
+        playerId: string
         name: string
         score?: number
     }[],
@@ -36,7 +36,7 @@ export function initializeGame(
     const deck = shuffle(createDeck());
 
     const players: Player[] = playerNames.map(plr => ({
-        id: plr.id,
+        playerId: plr.playerId,
         name: plr.name,
         hand: deck.splice(0, 7),
         calledUno: false,
@@ -47,7 +47,7 @@ export function initializeGame(
     const drawPile = deck;
 
     return {
-        id: randomUUID(),
+        gameId: randomUUID(),
         name: gameName,
         players,
         discardPile,

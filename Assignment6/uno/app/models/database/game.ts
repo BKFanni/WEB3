@@ -115,7 +115,7 @@ export function convertToGameState(mongooseGame: unknown): GameState {
     });
 
     return {
-        id: mongooseGame.gameId,
+        gameId: mongooseGame.gameId,
         name: mongooseGame.name,
         players: players,
         maxPlayers: mongooseGame.maxPlayers,

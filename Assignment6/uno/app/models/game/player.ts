@@ -1,7 +1,7 @@
 import { Card } from "./card"
 
 export type Player = {
-    id: string
+    playerId: string
     name: string
     hand?: Card[]
     calledUno: boolean

@@ -15,7 +15,7 @@ const GameList: React.FC<GameListParams> = ({playerIdHex}) => {
     useEffect(() => {
         const updateGames = async () => {
             try {
-                await sleep(1000)
+                await sleep(5000)
                 const result = await getGameList()
                 setGames(result)
             } catch (err) {
@@ -30,10 +30,10 @@ const GameList: React.FC<GameListParams> = ({playerIdHex}) => {
     return (
         <ul>
             {games.map((game) => (
-                <li key={game.id}>
+                <li key={game.gameId}>
                     {game.name} &#40;Players: {game.players.length}/{game.maxPlayers}&#41;
                     <JoinGameButton
-                        gameId={game.id}
+                        gameId={game.gameId}
                         playerIdHex={playerIdHex}
                     />
                 </li>

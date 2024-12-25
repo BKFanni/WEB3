@@ -14,7 +14,7 @@ const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
     const [playersTurn, setPlayerTurn] = useState<boolean>(false)
     useEffect(() => {
         const updateInfo = async () => {
-            await sleep(100)
+            await sleep(250)
             try {
                 const result = await checkPlayersTurn(gameId, session.sessionToEncrypt)
                 setPlayerTurn(result)

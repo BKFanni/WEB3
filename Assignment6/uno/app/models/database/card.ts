@@ -61,7 +61,7 @@ export function convertToCard(mongooseCard: unknown): Card {
     if (!("value" in mongooseCard)) {
         // non number card
         return {
-            id: mongooseCard.cardId,
+            cardId: mongooseCard.cardId,
             color: Color[mongooseCard.color],
             type: CardType[mongooseCard.cardType]
         }
@@ -72,7 +72,7 @@ export function convertToCard(mongooseCard: unknown): Card {
 
     // number card
     return {
-        id: mongooseCard.cardId,
+        cardId: mongooseCard.cardId,
         color: Color[mongooseCard.color],
         type: CardType.Number,
         value: mongooseCard.value

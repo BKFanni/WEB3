@@ -59,7 +59,7 @@ export function convertToPlayer(mongoosePlayer: unknown): Player {
     });
 
     return {
-        id: mongoosePlayer.playerId,
+        playerId: mongoosePlayer.playerId,
         name: mongoosePlayer.name,
         calledUno: mongoosePlayer.calledUno,
         score: mongoosePlayer.score,

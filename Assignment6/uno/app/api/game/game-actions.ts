@@ -2,7 +2,7 @@
 
 import { convertToGameState, gameModel } from "@/app/models/database/game"
 import { Card } from "@/app/models/game/card"
-import { GameState } from "@/app/models/game/gameState"
+import { GameState, initializeGame } from "@/app/models/game/gameState"
 import { isError } from "@/app/models/utils"
 import { redirect } from "next/navigation"
 import { connectToDatabase } from "../db-connection"
@@ -31,7 +31,6 @@ export async function joinGame(gameId: string, playerIdHex: string, username: st
             return
         }
 
-        //game.players.push({ playerId: playerIdHex, name: username, hand: []})
         game.players.push({
             playerId: playerIdHex,
             name: username,
@@ -107,6 +106,38 @@ export async function getGameInfo(gameId: string): Promise<GameState | undefined
     }
 }
 
+export async function createGame(gameName: string, playerIdHex: string, username: string): Promise<boolean> {
+    const newGameState = initializeGame([{playerId: playerIdHex, name: username}], gameName, 4)
+    try {
+        // Database stuff
+        const dbCon = await connectToDatabase()
+        if (!dbCon) {
+            console.error("Couldn't connect to database!")
+            return false
+        }
+
+        const dbGame = new gameModel({
+            gameId: newGameState.gameId,
+            name: newGameState.name,
+            maxPlayers: newGameState.maxPlayers,
+            direction: newGameState.direction,
+            isGameOver: newGameState.isGameOver,
+            createdAt: newGameState.createdAt,
+            discardPile: newGameState.discardPile,
+            drawPile: newGameState.drawPile,
+            players: newGameState.players
+        })
+        await dbGame.save()
+        dbCon.close()
+    } catch (err) {
+        if (isError(err))
+            console.error("Couldn't create a new game!", err.message)
+        return false
+    }
+
+    redirect(`/game/${newGameState.gameId}`)
+}
+
 export async function drawCard(gameId: string, playerIdHex: string): Promise<boolean> {
     return gameId === playerIdHex
 }
@@ -116,7 +147,7 @@ export async function checkPlayersTurn(gameId: string, playerIdHex: string): Pro
 }
 
 export async function playCard(gameId: string, playerIdHex: string, card: Card): Promise<boolean> {
-    return gameId === playerIdHex && card.id === 0
+    return gameId === playerIdHex && card.cardId === 0
 }
 
 export async function getPlayersCards(gameId: string, playerIdHex: string): Promise<Card[]> {

@@ -21,7 +21,7 @@ const PlayCardButton: React.FC<PlayCardParams> = ({session, gameId, card}) => {
     const [playersTurn, setPlayerTurn] = useState<boolean>(false)
     useEffect(() => {
         const updateInfo = async () => {
-            await sleep(100)
+            await sleep(250)
             try {
                 const result = await checkPlayersTurn(gameId, session.sessionToEncrypt)
                 setPlayerTurn(result)
@@ -70,7 +70,7 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
             <h3>Your Hand:</h3>
             <ul>
                 {cards.map((card) => (
-                    <li key={card.id} className='card-container'>
+                    <li key={card.cardId} className='card-container'>
                         <div className={['card', card.color].join(" ")}>
                             {card.color} {card.value ? card.value : card.type}
                         </div>

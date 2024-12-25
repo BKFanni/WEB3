@@ -33,7 +33,7 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
     useEffect(() => {
         const updateInfo = async () => {
             if (gameInfo)
-                await sleep(5000)
+                await sleep(500)
 
             try {
                 const serverGameInfo = await getGameInfo(gameId)
@@ -41,7 +41,7 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
                     return
                 
                 const simplifiedInfo = {
-                    id: serverGameInfo.id,
+                    id: serverGameInfo.gameId,
                     name: serverGameInfo.name,
                     players: serverGameInfo.players,
                     currentPlayerIndex: serverGameInfo.currentPlayerIndex,

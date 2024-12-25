@@ -16,7 +16,9 @@ export default async function Home() {
             <GameList
                 playerIdHex={session.sessionToEncrypt}
             />
-            <CreateGameButton/>
+            <CreateGameButton
+                playerIdHex={session.sessionToEncrypt}
+            />
         </div>
     );
 }

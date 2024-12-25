@@ -35,21 +35,21 @@ export function createDeck(): Card[] {
     const deck: Card[] = [];
 
     for (const color of [Color.Red, Color.Blue, Color.Green, Color.Yellow]) {
-        deck.push({ color, type: CardType.Number, value: 0, id: deck.length });
+        deck.push({ color, type: CardType.Number, value: 0, cardId: deck.length });
         for (let i = 1; i <= 9; i++) {
-            deck.push({ color, type: CardType.Number, value: i, id: deck.length });
-            deck.push({ color, type: CardType.Number, value: i, id: deck.length });
+            deck.push({ color, type: CardType.Number, value: i, cardId: deck.length });
+            deck.push({ color, type: CardType.Number, value: i, cardId: deck.length });
         }
         for (let i = 0; i < 2; i++) {
-            deck.push({ color, type: CardType.DrawTwo, id: deck.length });
-            deck.push({ color, type: CardType.Skip, id: deck.length });
-            deck.push({ color, type: CardType.Reverse, id: deck.length });
+            deck.push({ color, type: CardType.DrawTwo, cardId: deck.length });
+            deck.push({ color, type: CardType.Skip, cardId: deck.length });
+            deck.push({ color, type: CardType.Reverse, cardId: deck.length });
         }
     }
 
     for (let i = 0; i < 4; i++) {
-        deck.push({ color: Color.Wild, type: CardType.Wild, id: deck.length });
-        deck.push({ color: Color.Wild, type: CardType.WildDrawFour, id: deck.length });
+        deck.push({ color: Color.Wild, type: CardType.Wild, cardId: deck.length });
+        deck.push({ color: Color.Wild, type: CardType.WildDrawFour, cardId: deck.length });
     }
 
     return deck;
