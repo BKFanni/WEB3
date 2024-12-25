@@ -54,6 +54,7 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
     useEffect(() => {
         const updateInfo = async () => {
             try {
+                await sleep(300)
                 const result = await getPlayersCards(gameId, session.sessionToEncrypt)
                 setCards(result)
             } catch (err) {
@@ -72,7 +73,7 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
                 {cards.map((card) => (
                     <li key={card.cardId} className='card-container'>
                         <div className={['card', card.color].join(" ")}>
-                            {card.color} {card.value ? card.value : card.type}
+                            {card.color} {card.value ? card.value : card.cardType}
                         </div>
                         <PlayCardButton
                             session={session}

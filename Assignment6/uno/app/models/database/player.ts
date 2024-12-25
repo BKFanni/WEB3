@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { cardSchema, convertToCard } from "./card";
 import { Player } from "../game/player";
 import { Card } from "../game/card";
+import { isArray } from "../utils";
 
 export const playerSchema = new mongoose.Schema({
     playerId: { // Player User Hex
@@ -50,7 +51,7 @@ export function convertToPlayer(mongoosePlayer: unknown): Player {
         throw(new Error("Invalid mongoose player schema type! (calledUno isn't boolean!)"))
 
     if (mongoosePlayer.hand === null || typeof mongoosePlayer.hand !== "object"
-        || !(mongoosePlayer.hand instanceof mongoose.Types.DocumentArray))
+        || !isArray(mongoosePlayer.hand))
         throw(new Error("Invalid mongoose player schema type! (hand isn't mongoose document array)"))
 
     const handCards: Card[] = []

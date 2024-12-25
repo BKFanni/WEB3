@@ -18,15 +18,15 @@ export function shuffle(deck: Card[]): Card[] {
 export function calculatePoints(cards: Card[]): number {
     let total = 0;
     cards.forEach(c => {
-        if (c.type === CardType.Number) {
+        if (c.cardType === CardType.Number) {
             // Use default value 0 if c.value is undefined
             total += c.value ?? 0; 
         }
-        if (c.type === CardType.DrawTwo) { total += 20 }
-        if (c.type === CardType.Reverse) { total += 20 }
-        if (c.type === CardType.Skip) { total += 20 }
-        if (c.type === CardType.Wild) { total += 50 }
-        if (c.type === CardType.WildDrawFour) { total += 50 }
+        if (c.cardType === CardType.DrawTwo) { total += 20 }
+        if (c.cardType === CardType.Reverse) { total += 20 }
+        if (c.cardType === CardType.Skip) { total += 20 }
+        if (c.cardType === CardType.Wild) { total += 50 }
+        if (c.cardType === CardType.WildDrawFour) { total += 50 }
     });
     return total;
 }
@@ -35,21 +35,21 @@ export function createDeck(): Card[] {
     const deck: Card[] = [];
 
     for (const color of [Color.Red, Color.Blue, Color.Green, Color.Yellow]) {
-        deck.push({ color, type: CardType.Number, value: 0, cardId: deck.length });
+        deck.push({ color, cardType: CardType.Number, value: 0, cardId: deck.length });
         for (let i = 1; i <= 9; i++) {
-            deck.push({ color, type: CardType.Number, value: i, cardId: deck.length });
-            deck.push({ color, type: CardType.Number, value: i, cardId: deck.length });
+            deck.push({ color, cardType: CardType.Number, value: i, cardId: deck.length });
+            deck.push({ color, cardType: CardType.Number, value: i, cardId: deck.length });
         }
         for (let i = 0; i < 2; i++) {
-            deck.push({ color, type: CardType.DrawTwo, cardId: deck.length });
-            deck.push({ color, type: CardType.Skip, cardId: deck.length });
-            deck.push({ color, type: CardType.Reverse, cardId: deck.length });
+            deck.push({ color, cardType: CardType.DrawTwo, cardId: deck.length });
+            deck.push({ color, cardType: CardType.Skip, cardId: deck.length });
+            deck.push({ color, cardType: CardType.Reverse, cardId: deck.length });
         }
     }
 
     for (let i = 0; i < 4; i++) {
-        deck.push({ color: Color.Wild, type: CardType.Wild, cardId: deck.length });
-        deck.push({ color: Color.Wild, type: CardType.WildDrawFour, cardId: deck.length });
+        deck.push({ color: Color.Wild, cardType: CardType.Wild, cardId: deck.length });
+        deck.push({ color: Color.Wild, cardType: CardType.WildDrawFour, cardId: deck.length });
     }
 
     return deck;
@@ -86,7 +86,7 @@ export function isCardPlayable(card: Card, topCard: Card): boolean {
         card.color === topCard.color ||
         card.color === Color.Wild  ||
         (
-            card.type === CardType.Number && topCard.type === CardType.Number &&
+            card.cardType === CardType.Number && topCard.cardType === CardType.Number &&
             card.value !== undefined && topCard.value !== undefined &&
             card.value === topCard.value
         )

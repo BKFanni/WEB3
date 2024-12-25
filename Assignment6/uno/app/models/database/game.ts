@@ -4,6 +4,7 @@ import { cardSchema, convertToCard } from './card';
 import { GameState } from '../game/gameState';
 import { Player } from '../game/player';
 import { Card } from '../game/card';
+import { isArray } from '../utils';
 
 const gameSchema = new mongoose.Schema({
     gameId: {
@@ -88,15 +89,15 @@ export function convertToGameState(mongooseGame: unknown): GameState {
 
     // Checking arrays
     if (mongooseGame.players === null || typeof mongooseGame.players !== "object"
-        || !(mongooseGame.players instanceof mongoose.Types.DocumentArray))
+        || !isArray(mongooseGame.players))
         throw(new Error("Invalid mongoose game schema type! (players isn't mongoose document array)"))
     
     if (mongooseGame.discardPile === null || typeof mongooseGame.discardPile !== "object"
-        || !(mongooseGame.discardPile instanceof mongoose.Types.DocumentArray))
+        || !isArray(mongooseGame.discardPile))
         throw(new Error("Invalid mongoose game schema type! (discardPile isn't mongoose document array)"))
     
     if (mongooseGame.drawPile === null || typeof mongooseGame.drawPile !== "object"
-        || !(mongooseGame.drawPile instanceof mongoose.Types.DocumentArray))
+        || !isArray(mongooseGame.drawPile))
         throw(new Error("Invalid mongoose game schema type! (drawPile isn't mongoose document array)"))
 
     const players: Player[] = []

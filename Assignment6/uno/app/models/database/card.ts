@@ -58,23 +58,24 @@ export function convertToCard(mongooseCard: unknown): Card {
 
 
     // Returning converted card
-    if (!("value" in mongooseCard)) {
+    if (!("value" in mongooseCard) || ("value" in mongooseCard && mongooseCard.value === undefined)) {
         // non number card
         return {
             cardId: mongooseCard.cardId,
             color: Color[mongooseCard.color],
-            type: CardType[mongooseCard.cardType]
+            cardType: CardType[mongooseCard.cardType]
         }
     }
 
-    if (typeof mongooseCard.value !== "number")
+    if (typeof mongooseCard.value !== "number") {
         throw(new Error("Invalid mongoose card schema type! (Number card value type isn't number!)"))
+    }
 
     // number card
     return {
         cardId: mongooseCard.cardId,
         color: Color[mongooseCard.color],
-        type: CardType.Number,
+        cardType: CardType.Number,
         value: mongooseCard.value
     }
 }

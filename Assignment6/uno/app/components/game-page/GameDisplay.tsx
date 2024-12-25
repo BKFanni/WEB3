@@ -71,7 +71,7 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
                     {
                     // If no last card, display "-", else show value, if undefined display card type
                     gameInfo && gameInfo.lastCard ?
-                        gameInfo.lastCard.value ? gameInfo.lastCard.value : gameInfo.lastCard.type
+                        gameInfo.lastCard.value ? gameInfo.lastCard.value : gameInfo.lastCard.cardType
                     : "-" 
                     }
                 </div>

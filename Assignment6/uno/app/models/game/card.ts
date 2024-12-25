@@ -18,6 +18,6 @@ export enum CardType {
 export type Card = {
     cardId: number
     color: Color
-    type: CardType
+    cardType: CardType
     value?: number 
 }
