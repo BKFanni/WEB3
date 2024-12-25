@@ -54,14 +54,22 @@
     margin: 20px 0;
 }
 
+.card-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
 .card-container {
     display: flex;
-    align-items: center;
-    margin-bottom: 10px;
+    align-content: center;
+    flex-direction: column;
+    margin: 5px;
 }
 
 .play-button {
-    margin-left: 10px;
+    margin: 7px;
     background-color: #2ecc71;
     color: black;  /* No white text */
     border: none;

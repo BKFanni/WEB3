@@ -194,7 +194,8 @@ export function playCurrentPlayerCard(state: GameState, card: Card): GameState {
     gameCopy.discardPile = newDiscardPile
     gameCopy.players[state.currentPlayerIndex] = newPlayer
     // Picking a new card after playing
-    gameCopy = pickCard(gameCopy, state.currentPlayerIndex)
+    if (plrCards.length < 7)
+        gameCopy = pickCard(gameCopy, state.currentPlayerIndex)
 
     if (card.cardType === CardType.WildDrawFour) {
         const affected = calculateNextPlayer(

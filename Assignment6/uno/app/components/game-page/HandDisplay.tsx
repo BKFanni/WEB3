@@ -88,9 +88,9 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
     return (
         <div className="player-hand">
             <h3>Your Hand:</h3>
-            <ul>
+            <div className="card-list">
                 {cards.cards.map((card) => (
-                    <li key={card.cardId} className='card-container'>
+                    <div key={card.cardId} className='card-container'>
                         <div className={['card', card.color].join(" ")}>
                             Color: {card.color}, {
                                 card.value !== undefined
@@ -103,9 +103,9 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
                             gameId={gameId}
                             card={card}
                         />
-                    </li>
+                    </div>
                 ))}
-            </ul>
+            </div>
         </div>
     )
 }
