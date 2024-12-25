@@ -1,4 +1,6 @@
 import { Card, CardType, Color } from "./card";
+import { GameState } from "./gameState";
+import { Player } from "./player";
 
 export function shuffle(deck: Card[]): Card[] {
     const shuffledDeck = [...deck];
@@ -89,4 +91,22 @@ export function isCardPlayable(card: Card, topCard: Card): boolean {
             card.value === topCard.value
         )
     );
+}
+
+/**
+ * Removes information from game state that shouldn't be public to all players
+ * @param game game state which to use
+ */
+export function removeGameStateSecrets(game: GameState): GameState {
+    const sanitized = {...game}
+    sanitized.drawPile = undefined
+    const sanitizedPlayers: Player[] = []
+    sanitized.players.forEach(p => {
+        const copy = {...p}
+        copy.hand = undefined
+        sanitizedPlayers.push(copy)
+    });
+    sanitized.players = sanitizedPlayers
+
+    return sanitized
 }
