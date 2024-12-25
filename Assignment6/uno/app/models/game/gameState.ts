@@ -78,10 +78,11 @@ export function addPlayer(
         throw new Error("Game is full!")
     if (game.drawPile === undefined)
         throw new Error("Draw pile undefined!")
-    game.players.forEach(p => {
+    for (let i = 0; i < game.players.length; i++) {
+        const p = game.players[i];
         if (p.name === player.name || p.playerId === player.playerId)
-            throw new Error ("Player already exists!")
-    });
+            return game
+    }
 
     // Copying game
     let gameCopy = {...game}
@@ -188,7 +189,8 @@ export function playCurrentPlayerCard(state: GameState, card: Card): GameState {
     let gameCopy = {...state}
     const newDiscardPile = [...state.discardPile]
     newDiscardPile.push(plrCards[playerCardIndex])
-    const newPlayer = {...state.players[state.currentPlayerIndex]}
+    plrCards.pop()
+    const newPlayer: Player = {...state.players[state.currentPlayerIndex], hand: plrCards}
     gameCopy.discardPile = newDiscardPile
     gameCopy.players[state.currentPlayerIndex] = newPlayer
     // Picking a new card after playing

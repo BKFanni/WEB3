@@ -11,13 +11,21 @@ type Params = {
 }
 
 const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
-    const [playersTurn, setPlayerTurn] = useState<boolean>(false)
+    const [playersTurn, setPlayerTurn] = useState<{
+        turn: boolean,
+        lastFetch: Date
+    }>({turn: false, lastFetch: new Date(0)})
     useEffect(() => {
         const updateInfo = async () => {
-            await sleep(250)
+            if (Date.now() - playersTurn.lastFetch.getTime() < 300)
+                await sleep(250)
+
             try {
                 const result = await checkPlayersTurn(gameId, session.sessionToEncrypt)
-                setPlayerTurn(result)
+                setPlayerTurn({
+                    turn: result,
+                    lastFetch: new Date()
+                })
             } catch (err) {
                 if (isError(err))
                     console.error("Error fetching game data!", err.message)
@@ -25,7 +33,7 @@ const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
         }
 
         updateInfo()
-    }, [gameId, session.sessionToEncrypt])
+    })
 
     const handleClick = async () => {
         if (!playersTurn)
@@ -33,7 +41,10 @@ const DrawCardButton: React.FC<Params> = ({gameId, session}) => {
 
         const cardDrawn = await drawCard(gameId, session.sessionToEncrypt)
         if (cardDrawn)
-            setPlayerTurn(false)
+            setPlayerTurn({
+                turn: false,
+                lastFetch: new Date()
+            })
     }
 
     return (

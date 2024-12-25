@@ -10,14 +10,19 @@ type GameListParams = {
 }
 
 const GameList: React.FC<GameListParams> = ({playerIdHex}) => {
-    const [games, setGames] = useState<GameState[]>([])
+    const [games, setGames] = useState<{
+        games: GameState[],
+        lastFetch: Date
+    }>({games: [], lastFetch: new Date(0)})
 
     useEffect(() => {
         const updateGames = async () => {
             try {
-                await sleep(5000)
+                if (Date.now() - games.lastFetch.getTime() < 5000)
+                    await sleep(5000)
+
                 const result = await getGameList()
-                setGames(result)
+                setGames({games: result, lastFetch: new Date()})
             } catch (err) {
                 if (isError(err))
                     console.error("Error fetching game data!", err.message)
@@ -29,9 +34,9 @@ const GameList: React.FC<GameListParams> = ({playerIdHex}) => {
 
     return (
         <ul>
-            {games.map((game) => (
+            {games.games.map((game) => (
                 <li key={game.gameId}>
-                    {game.name} &#40;Players: {game.players.length}/{game.maxPlayers}&#41;
+                    {game.name} &#40;Players: {game.players.length}/{game.maxPlayers}&#41; 
                     <JoinGameButton
                         gameId={game.gameId}
                         playerIdHex={playerIdHex}

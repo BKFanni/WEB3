@@ -49,14 +49,22 @@ const PlayCardButton: React.FC<PlayCardParams> = ({session, gameId, card}) => {
 }
 
 const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
-    const [cards, setCards] = useState<Card[]>([])
+    const [cards, setCards] = useState<{
+        cards: Card[]
+        lastFetch: Date
+    }>({cards: [], lastFetch: new Date(0)})
 
     useEffect(() => {
         const updateInfo = async () => {
             try {
-                await sleep(300)
+                if (Date.now() - cards.lastFetch.getTime() < 1000)
+                    await sleep(1000)
+
                 const result = await getPlayersCards(gameId, session.sessionToEncrypt)
-                setCards(result)
+                setCards({
+                    cards: result,
+                    lastFetch: new Date()
+                })
             } catch (err) {
                 if (isError(err))
                     console.error("Error fetching card data!", err.message)
@@ -64,17 +72,15 @@ const HandDisplay: React.FC<HandDisplayParams> = ({gameId, session}) => {
         }
 
         updateInfo()
-    }, [gameId, session.sessionToEncrypt])
+    })
 
     return (
         <div className="player-hand">
             <h3>Your Hand:</h3>
             <ul>
-                {cards.map((card) => (
+                {cards.cards.map((card) => (
                     <li key={card.cardId} className='card-container'>
-                        <div className={['card', card.color].join(" ")}>
-                            Color: {card.color}, Value/Type: {card.value ? card.value : card.cardType}
-                        </div>
+                        <div className={['card', card.color].join(" ")}>Color: {card.color}, {card.value ? `Value: ${card.value}, Type: Number` : `Type: ${card.cardType}`}</div>
                         <PlayCardButton
                             session={session}
                             gameId={gameId}

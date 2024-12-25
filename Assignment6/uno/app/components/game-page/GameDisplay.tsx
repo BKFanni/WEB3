@@ -68,14 +68,13 @@ const GameDisplay: React.FC<GameDisplayParams> = ({gameId}) => {
                 <p>Top of Discard Pile:</p>
                 <div className={
                     ["card", gameInfo && gameInfo.lastCard ? gameInfo.lastCard.color : ""].join(" ")
-                }>
-                    {
+                }>{
                     // If no last card, display "-", else show value, if undefined display card type
                     gameInfo && gameInfo.lastCard ?
                         gameInfo.lastCard.value ? `Value: ${gameInfo.lastCard.value}, Type: Number, Color: ${gameInfo.lastCard.color}`
                         : `Type: ${gameInfo.lastCard.cardType}, Color: ${gameInfo.lastCard.color}`
                     : "-" 
-                    }
+                }
                 </div>
             </div>
         </div>

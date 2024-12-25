@@ -10,7 +10,7 @@ export async function connectToDatabase() {
     // Connect to MongoDB
     try {
         await mongoose.connect(MONGO_URI)//{ useNewUrlParser: true, useUnifiedTopology: true })
-        console.log("Connection established to database! ")
+        //console.log("Connection established to database! ")
     } catch (err) {
         if (isError(err))
             console.error("Error connecting to database! ", err.message)
